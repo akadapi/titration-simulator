@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Titration Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bench: #1a2332;
+      --bench-dark: #121a26;
+      --panel: #f4f6f9;
+      --panel-border: #dce1e8;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --success: #059669;
+      --warning: #d97706;
+      --text: #1e293b;
+      --muted: #64748b;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, sans-serif;
+      background: #0f1419;
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    h1 {
+      margin: 0;
+      padding: 0.75rem 1.25rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      background: var(--bench-dark);
+      border-bottom: 1px solid #2d3a4d;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) minmax(320px, 1.2fr) minmax(280px, 1fr);
+      gap: 12px;
+      padding: 12px;
+      max-width: 1600px;
+      margin: 0 auto;
+      min-height: calc(100vh - 48px);
+    }
+
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--panel);
+      border-radius: 12px;
+      border: 1px solid var(--panel-border);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .panel-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    /* Lab bench */
+    .bench {
+      background: linear-gradient(180deg, var(--bench) 0%, var(--bench-dark) 100%);
+      border-color: #2d3a4d;
+      color: #e2e8f0;
+    }
+
+    .bench .panel-title { color: #94a3b8; }
+
+    .lab-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 24px;
+      flex: 1;
+      min-height: 280px;
+      position: relative;
+    }
+
+    .burette-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .burette {
+      width: 44px;
+      height: 220px;
+      border: 2px solid #cbd5e1;
+      border-radius: 4px 4px 0 0;
+      background: rgba(255,255,255,0.06);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .burette-fill {
+      position: absolute;
+      left: 2px;
+      right: 2px;
+      bottom: 2px;
+      background: linear-gradient(90deg, #60a5fa, #3b82f6);
+      border-radius: 0 0 2px 2px;
+      transition: height 0.35s ease;
+    }
+
+    .burette-marks {
+      position: absolute;
+      right: -22px;
+      top: 0;
+      height: 100%;
+      width: 18px;
+      font-size: 8px;
+      color: #94a3b8;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 4px 0;
+    }
+
+    .burette-tip {
+      width: 8px;
+      height: 14px;
+      background: #94a3b8;
+      margin-top: -1px;
+      border-radius: 0 0 4px 4px;
+    }
+
+    .stopcock {
+      width: 20px;
+      height: 8px;
+      background: #475569;
+      border-radius: 2px;
+      margin-top: 2px;
+    }
+
+    .dispensed-label {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+    }
+
+    .flask-area {
+      position: relative;
+      width: 120px;
+      height: 200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .droplet {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #3b82f6;
+      left: 50%;
+      margin-left: -5px;
+      top: 20px;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .droplet.falling {
+      animation: dropFall 0.42s ease-in forwards;
+    }
+
+    @keyframes dropFall {
+      0% { opacity: 1; transform: translateY(0); }
+      15% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(140px); }
+    }
+
+    .flask-svg {
+      width: 100px;
+      height: 130px;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.35));
+    }
+
+    #liqStop0,
+    #liqStop1 {
+      transition: stop-color 0.35s ease;
+    }
+
+    .ph-readout {
+      margin-top: 12px;
+      text-align: center;
+    }
+
+    .ph-readout .value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #f8fafc;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .ph-readout .label {
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+
+    .half-eq-banner {
+      margin-top: 8px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: rgba(234, 179, 8, 0.2);
+      border: 1px solid rgba(234, 179, 8, 0.45);
+      color: #fde047;
+      font-size: 0.75rem;
+      text-align: center;
+      display: none;
+    }
+
+    .half-eq-banner.visible { display: block; }
+
+    .chart-wrap {
+      flex: 1;
+      min-height: 260px;
+      position: relative;
+    }
+
+    .chart-hint {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .workspace section {
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--panel-border);
+    }
+
+    .workspace section:last-child { border-bottom: none; }
+
+    .workspace h2 {
+      font-size: 0.85rem;
+      margin: 0 0 10px 0;
+      color: var(--text);
+    }
+
+    label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.875rem;
+      margin-bottom: 10px;
+    }
+
+    textarea { min-height: 72px; resize: vertical; }
+
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    button {
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      background: var(--accent);
+      color: white;
+      transition: background 0.15s;
+    }
+
+    button:hover:not(:disabled) { background: var(--accent-hover); }
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .btn-group button.secondary {
+      background: #64748b;
+    }
+
+    .btn-group button.secondary:hover:not(:disabled) { background: #475569; }
+
+    .locked {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
+    .data-table {
+      width: 100%;
+      font-size: 0.8rem;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+    }
+
+    .data-table th, .data-table td {
+      padding: 6px 8px;
+      text-align: left;
+      border-bottom: 1px solid var(--panel-border);
+    }
+
+    .data-table th { color: var(--muted); font-weight: 500; }
+
+    .scroll-table {
+      max-height: 140px;
+      overflow-y: auto;
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+    }
+
+    .equiv-flash {
+      animation: equivPulse 0.6s ease;
+    }
+
+    @keyframes equivPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+      50% { box-shadow: 0 0 20px 4px rgba(37, 99, 235, 0.35); }
+    }
+
+    .postlab-q {
+      margin-bottom: 14px;
+    }
+
+    .postlab-q label { font-weight: 500; color: var(--text); font-size: 0.8rem; }
+
+    .scenario-note {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: -4px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Titration Simulator — pH vs. volume</h1>
+  <div class="layout">
+    <div class="panel bench">
+      <div class="panel-title">Lab bench</div>
+      <div class="lab-row">
+        <div class="burette-wrap">
+          <div class="burette" id="burette">
+            <div class="burette-fill" id="buretteFill"></div>
+            <div class="burette-marks">
+              <span>0</span>
+              <span>25</span>
+              <span>50</span>
+            </div>
+          </div>
+          <div class="burette-tip"></div>
+          <div class="stopcock"></div>
+          <div class="droplet" id="droplet"></div>
+          <div class="dispensed-label" id="dispensedLabel">0.0 mL added</div>
+        </div>
+        <div class="flask-area" id="flaskArea">
+          <svg class="flask-svg" viewBox="0 0 100 130" aria-hidden="true">
+            <defs>
+              <linearGradient id="liquidGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" id="liqStop0" stop-color="#a5b4fc" />
+                <stop offset="100%" id="liqStop1" stop-color="#6366f1" />
+              </linearGradient>
+              <clipPath id="flaskClip">
+                <path d="M35 8 L65 8 L72 45 L88 100 Q88 118 50 122 Q12 118 12 100 L28 45 Z" />
+              </clipPath>
+            </defs>
+            <path d="M35 8 L65 8 L72 45 L88 100 Q88 118 50 122 Q12 118 12 100 L28 45 Z"
+              fill="none" stroke="#cbd5e1" stroke-width="2" />
+            <g clip-path="url(#flaskClip)">
+              <rect id="liquidRect" x="10" y="55" width="80" height="75" fill="url(#liquidGrad)" />
+            </g>
+          </svg>
+        </div>
+      </div>
+      <div class="ph-readout">
+        <div class="label">Current pH</div>
+        <div class="value" id="phDisplay">—</div>
+      </div>
+      <div class="half-eq-banner" id="halfEqBanner">Half-equivalence: pH ≈ pK<sub>a</sub> — great stopping point for analysis.</div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Titration curve</div>
+      <div class="chart-hint" id="chartHint">After you begin, click the chart at the volume you think is the equivalence point (vertical dashed line).</div>
+      <div class="chart-wrap">
+        <canvas id="phChart"></canvas>
+      </div>
+    </div>
+
+    <div class="panel workspace">
+      <div class="panel-title">Student workspace</div>
+
+      <section id="secSetup">
+        <h2>1 — Setup</h2>
+        <label for="scenarioSel">Scenario</label>
+        <select id="scenarioSel">
+          <option value="strong">Strong acid / strong base (HCl + NaOH)</option>
+          <option value="weak">Weak acid / strong base (CH₃COOH + NaOH)</option>
+          <option value="unknown">Unknown weak acid concentration (same pK<sub>a</sub> as acetic)</option>
+        </select>
+        <p class="scenario-note" id="scenarioBlurb">Equivalence at 25.0 mL when concentrations match; pH at eq. = 7.00.</p>
+        <label for="indicatorSel">Indicator</label>
+        <select id="indicatorSel">
+          <option value="phenolphthalein">Phenolphthalein (8.2–10)</option>
+          <option value="methylorange">Methyl orange (3.1–4.4)</option>
+          <option value="bromothymol">Bromothymol blue (6.0–7.6)</option>
+        </select>
+        <div class="row-2">
+          <div>
+            <label for="CaInput">[Acid] (M)</label>
+            <input type="text" inputmode="decimal" id="CaInput" autocomplete="off" value="0.100" />
+            <p class="scenario-note" id="caHiddenNote" style="display:none;margin-top:-6px;">Concentration is hidden for this run — find it from your V<sub>eq</sub>.</p>
+          </div>
+          <div>
+            <label for="VaInput">Acid volume (mL)</label>
+            <input type="number" id="VaInput" step="any" min="0.1" value="25.0" />
+          </div>
+        </div>
+        <label for="CbInput">[Base titrant] (M)</label>
+        <input type="number" id="CbInput" step="any" min="0.001" value="0.100" />
+        <button type="button" id="btnBegin">Begin titration</button>
+        <button type="button" id="btnReset" class="secondary" style="margin-top:10px;width:100%;background:#475569;display:none;">New titration (reset)</button>
+      </section>
+
+      <section id="secTitration" class="locked">
+        <h2>2 — Titration</h2>
+        <div class="btn-group">
+          <button type="button" id="add01">+0.1 mL</button>
+          <button type="button" id="add05">+0.5 mL</button>
+          <button type="button" id="add10">+1.0 mL</button>
+        </div>
+        <label>Last additions (newest first)</label>
+        <div class="scroll-table">
+          <table class="data-table">
+            <thead><tr><th>V<sub>b</sub> (mL)</th><th>pH</th></tr></thead>
+            <tbody id="dataRows"></tbody>
+          </table>
+        </div>
+        <label for="equivGuess">I think the equivalence point is at (mL)</label>
+        <div class="row-2">
+          <input type="number" id="equivGuess" step="any" min="0" placeholder="e.g. 25.0" />
+          <button type="button" class="secondary" id="btnSubmitEquiv">Submit guess</button>
+        </div>
+      </section>
+
+      <section id="secPostlab" class="locked">
+        <h2>3 — Post-lab</h2>
+        <div class="postlab-q">
+          <label for="q1">1. What volume of titrant was required to reach the equivalence point?</label>
+          <textarea id="q1"></textarea>
+        </div>
+        <div class="postlab-q">
+          <label for="q2">2. Using your equivalence volume, calculate the concentration of the unknown acid. Show your work.</label>
+          <textarea id="q2"></textarea>
+        </div>
+        <div class="postlab-q" id="q3wrap">
+          <label for="q3">3. (Weak / unknown weak) At what volume is half-equivalence? What is pK<sub>a</sub>?</label>
+          <textarea id="q3"></textarea>
+        </div>
+        <div class="postlab-q">
+          <label for="q4">4. Was the pH at the equivalence point equal to 7? Explain.</label>
+          <textarea id="q4"></textarea>
+        </div>
+        <div class="postlab-q">
+          <label for="q5">5. Which indicator was most appropriate? Why?</label>
+          <textarea id="q5"></textarea>
+        </div>
+        <div class="postlab-q">
+          <label for="q6">6. How would the curve differ if you titrated a weak acid instead of a strong acid (or vice versa)?</label>
+          <textarea id="q6"></textarea>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+(function () {
+  "use strict";
+
+  const KW = 1e-14;
+  const KA_ACETIC = 1.8e-5;
+  const PKA_ACETIC = -Math.log10(KA_ACETIC);
+  const BURETTE_CAPACITY = 50;
+
+  const INDICATORS = {
+    phenolphthalein: { low: 8.2, high: 10, cLow: "rgb(248,250,252)", cHigh: "rgb(236,72,153)" },
+    methylorange: { low: 3.1, high: 4.4, cLow: "rgb(220,38,38)", cHigh: "rgb(250,204,21)" },
+    bromothymol: { low: 6.0, high: 7.6, cLow: "rgb(234,179,8)", cHigh: "rgb(37,99,235)" },
+  };
+
+  const state = {
+    scenario: "strong",
+    indicator: "phenolphthalein",
+    Ca: 0.1,
+    Va: 25,
+    Cb: 0.1,
+    Vb: 0,
+    pH: null,
+    dataPoints: [],
+    equivalenceGuess: null,
+    trueEquivML: null,
+    phase: "setup",
+    chart: null,
+    hiddenCa: null,
+  };
+
+  function log10(x) {
+    return Math.log(x) / Math.LN10;
+  }
+
+  function clampPh(ph) {
+    if (!isFinite(ph)) return 7;
+    return Math.min(14, Math.max(0, ph));
+  }
+
+  /** True equivalence volume (mL): monoprotic acid, strong base */
+  function equivalenceVolumeML() {
+    return (state.Ca * state.Va) / state.Cb;
+  }
+
+  /**
+   * Strong acid + strong base. Va, Vb in mL; Ca, Cb in mol/L.
+   */
+  function phStrongStrong(Vb) {
+    const { Ca, Cb, Va } = state;
+    if (Vb <= 0) return clampPh(-log10(Ca));
+
+    const molHExcess = Ca * Va - Cb * Vb;
+    const volTot = Va + Vb;
+    const eps = 1e-15 * Math.max(Ca * Va, Cb * Vb, 1e-20);
+
+    if (molHExcess > eps) {
+      const h = molHExcess / volTot;
+      return clampPh(-log10(h));
+    }
+    if (molHExcess < -eps) {
+      const molOH = Cb * Vb - Ca * Va;
+      const oh = molOH / volTot;
+      return clampPh(14 + log10(oh));
+    }
+    return 7;
+  }
+
+  /**
+   * Weak acid (Ka) + strong base.
+   */
+  function phWeakStrong(Vb, Ka) {
+    const pKa = -Math.log10(Ka);
+    const { Ca, Cb, Va } = state;
+    const V_eq = (Ca * Va) / Cb;
+
+    if (Vb <= 0) {
+      const h = Math.sqrt(Math.max(Ka * Ca, 1e-20));
+      return clampPh(-log10(h));
+    }
+
+    const molHA = Ca * Va - Cb * Vb;
+    const molA = Cb * Vb;
+    const volTot = Va + Vb;
+
+    if (Vb > V_eq + 1e-9) {
+      const molOH = Cb * Vb - Ca * Va;
+      const oh = molOH / volTot;
+      return clampPh(14 + log10(Math.max(oh, 1e-15)));
+    }
+
+    const atEquiv =
+      Math.abs(Vb - V_eq) <= 0.02 ||
+      Math.abs(molHA) <= Math.max(1e-12 * Ca * Va, 1e-14);
+    if (atEquiv && molA > 0) {
+      const cA = molA / volTot;
+      const Kb = KW / Ka;
+      const oh = Math.sqrt(Math.max(Kb * cA, 1e-20));
+      return clampPh(14 + log10(oh));
+    }
+
+    if (molHA > Math.max(1e-10 * Ca * Va, 1e-12)) {
+      const ratio = molA / molHA;
+      return clampPh(pKa + log10(Math.max(ratio, 1e-12)));
+    }
+
+    if (Vb < V_eq - 0.02 && molHA <= 0) {
+      const cA = Math.max(molA / volTot, 1e-15);
+      const Kb = KW / Ka;
+      const oh = Math.sqrt(Kb * cA);
+      return clampPh(14 + log10(oh));
+    }
+
+    const cA = molA / volTot;
+    const Kb = KW / Ka;
+    const oh = Math.sqrt(Math.max(Kb * cA, 1e-20));
+    return clampPh(14 + log10(oh));
+  }
+
+  function computePH(Vb) {
+    if (state.scenario === "strong") return phStrongStrong(Vb);
+    return phWeakStrong(Vb, KA_ACETIC);
+  }
+
+  function isWeakLike() {
+    return state.scenario === "weak" || state.scenario === "unknown";
+  }
+
+  function indicatorColor(ph) {
+    const key =
+      state.indicator === "methylorange"
+        ? "methylorange"
+        : state.indicator === "bromothymol"
+          ? "bromothymol"
+          : "phenolphthalein";
+    const ind = INDICATORS[key];
+    const { low, high, cLow, cHigh } = ind;
+    if (ph <= low) return cLow;
+    if (ph >= high) return cHigh;
+    const t = (ph - low) / (high - low);
+    const parse = (s) => s.match(/\d+/g).map(Number);
+    const a = parse(cLow);
+    const b = parse(cHigh);
+    const r = Math.round(a[0] + (b[0] - a[0]) * t);
+    const g = Math.round(a[1] + (b[1] - a[1]) * t);
+    const bl = Math.round(a[2] + (b[2] - a[2]) * t);
+    return `rgb(${r},${g},${bl})`;
+  }
+
+  function updateFlaskColor(ph) {
+    const c = indicatorColor(ph);
+    const d = c.match(/\d+/g).map(Number);
+    const c2 = `rgb(${Math.max(0, d[0] - 25)},${Math.max(0, d[1] - 20)},${Math.min(255, d[2] + 15)})`;
+    document.getElementById("liqStop0").setAttribute("stop-color", c);
+    document.getElementById("liqStop1").setAttribute("stop-color", c2);
+  }
+
+  function buretteRemainingFrac() {
+    return Math.max(0, (BURETTE_CAPACITY - state.Vb) / BURETTE_CAPACITY);
+  }
+
+  function updateBuretteUI() {
+    const pct = buretteRemainingFrac() * 100;
+    document.getElementById("buretteFill").style.height = pct + "%";
+    document.getElementById("dispensedLabel").textContent =
+      state.Vb.toFixed(1) + " mL added";
+  }
+
+  function playDroplet() {
+    const el = document.getElementById("droplet");
+    el.classList.remove("falling");
+    void el.offsetWidth;
+    el.classList.add("falling");
+  }
+
+  function updateHalfEqBanner() {
+    const banner = document.getElementById("halfEqBanner");
+    if (state.phase === "setup" || !isWeakLike()) {
+      banner.classList.remove("visible");
+      return;
+    }
+    const V_eq = equivalenceVolumeML();
+    const half = V_eq / 2;
+    if (state.Vb > 0 && Math.abs(state.Vb - half) <= 0.15) {
+      banner.innerHTML = "Half-equivalence zone: pH ≈ pK<sub>a</sub> = " + PKA_ACETIC.toFixed(2) + " — compare to your curve.";
+      banner.classList.add("visible");
+    } else {
+      banner.classList.remove("visible");
+    }
+  }
+
+  function updateDataTable() {
+    const tbody = document.getElementById("dataRows");
+    tbody.innerHTML = "";
+    const last = state.dataPoints.slice(-5).reverse();
+    for (const p of last) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = "<td>" + p.x.toFixed(2) + "</td><td>" + p.y.toFixed(2) + "</td>";
+      tbody.appendChild(tr);
+    }
+  }
+
+  function chartDatasets() {
+    const main = {
+      label: "pH",
+      data: state.dataPoints.map((d) => ({ x: d.x, y: d.y })),
+      borderColor: "#2563eb",
+      backgroundColor: "rgba(37,99,235,0.08)",
+      fill: false,
+      tension: 0.4,
+      pointRadius: state.dataPoints.length > 40 ? 0 : 3,
+      pointHoverRadius: 5,
+    };
+
+    const hLine = {
+      label: "pH 7",
+      data: [
+        { x: 0, y: 7 },
+        { x: 50, y: 7 },
+      ],
+      borderColor: "rgba(100,116,139,0.6)",
+      borderDash: [6, 4],
+      pointRadius: 0,
+      fill: false,
+      tension: 0,
+    };
+
+    const ds = [hLine, main];
+
+    if (
+      state.phase === "postlab" &&
+      state.equivalenceGuess != null &&
+      state.equivalenceGuess >= 0 &&
+      state.equivalenceGuess <= 50
+    ) {
+      ds.push({
+        label: "Your eq. volume",
+        data: [
+          { x: state.equivalenceGuess, y: 0 },
+          { x: state.equivalenceGuess, y: 14 },
+        ],
+        borderColor: "rgba(37,99,235,0.85)",
+        borderDash: [4, 4],
+        pointRadius: 0,
+        fill: false,
+        tension: 0,
+      });
+    }
+
+    if (state.phase !== "setup" && isWeakLike()) {
+      const vx = equivalenceVolumeML() / 2;
+      ds.push({
+        label: "Half-equiv (pKa = " + PKA_ACETIC.toFixed(2) + ")",
+        data: [{ x: vx, y: PKA_ACETIC }],
+        borderColor: "#ca8a04",
+        backgroundColor: "#eab308",
+        pointRadius: 8,
+        pointHoverRadius: 10,
+        showLine: false,
+      });
+    }
+
+    return ds;
+  }
+
+  function refreshChart() {
+    if (!state.chart) return;
+    state.chart.data.datasets = chartDatasets();
+    state.chart.update("none");
+  }
+
+  function initChart() {
+    const ctx = document.getElementById("phChart").getContext("2d");
+    state.chart = new Chart(ctx, {
+      type: "line",
+      data: { datasets: chartDatasets() },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: "nearest", intersect: false },
+        onClick(evt, elements, chart) {
+          if (state.phase !== "titrating") return;
+          const scales = chart.scales;
+          if (!scales.x) return;
+          const x = scales.x.getValueForPixel(evt.x);
+          if (x == null || !isFinite(x)) return;
+          const gx = Math.max(0, Math.min(50, x));
+          document.getElementById("equivGuess").value = gx.toFixed(2);
+          refreshChart();
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: "top",
+            labels: { boxWidth: 12, font: { size: 10 } },
+          },
+          tooltip: {
+            callbacks: {
+              label(ctx) {
+                const lab = ctx.dataset.label || "";
+                if (lab === "pH 7") return "pH reference: 7";
+                if (lab.indexOf("Half-equiv") === 0)
+                  return "V = " + ctx.parsed.x.toFixed(2) + " mL, pH = " + ctx.parsed.y.toFixed(2);
+                if (lab === "Your eq. volume")
+                  return "Eq. guess: " + ctx.parsed.x.toFixed(2) + " mL";
+                return "V = " + ctx.parsed.x.toFixed(2) + " mL, pH = " + ctx.parsed.y.toFixed(2);
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            type: "linear",
+            min: 0,
+            max: 50,
+            title: { display: true, text: "Titrant added Vb (mL)" },
+          },
+          y: {
+            min: 0,
+            max: 14,
+            title: { display: true, text: "pH" },
+          },
+        },
+      },
+    });
+  }
+
+  function recalcAndPush() {
+    state.pH = computePH(state.Vb);
+    const last = state.dataPoints[state.dataPoints.length - 1];
+    if (!last || Math.abs(last.x - state.Vb) > 1e-6) {
+      state.dataPoints.push({ x: state.Vb, y: state.pH });
+    } else {
+      last.y = state.pH;
+    }
+    document.getElementById("phDisplay").textContent = state.pH.toFixed(2);
+    updateFlaskColor(state.pH);
+    updateBuretteUI();
+    updateDataTable();
+    updateHalfEqBanner();
+    refreshChart();
+  }
+
+  function addVolume(dV) {
+    if (state.phase !== "titrating") return;
+    state.Vb = Math.min(50, state.Vb + dV);
+    playDroplet();
+    recalcAndPush();
+  }
+
+  function unlockPostlab() {
+    state.phase = "postlab";
+    document.getElementById("secPostlab").classList.remove("locked");
+    document.getElementById("chartHint").textContent =
+      "Post-lab unlocked. Your equivalence guess is shown as a vertical dashed line.";
+    const chartPanel = document.querySelector(".layout > .panel:nth-child(2)");
+    chartPanel.classList.add("equiv-flash");
+    setTimeout(() => chartPanel.classList.remove("equiv-flash"), 700);
+  }
+
+  function setSetupInputsEnabled(on) {
+    document.getElementById("scenarioSel").disabled = !on;
+    document.getElementById("indicatorSel").disabled = !on;
+    document.getElementById("VaInput").disabled = !on;
+    document.getElementById("CbInput").disabled = !on;
+    document.getElementById("btnBegin").disabled = !on;
+    document.getElementById("btnReset").style.display = on ? "none" : "block";
+  }
+
+  function resetToSetup() {
+    state.phase = "setup";
+    state.Vb = 0;
+    state.dataPoints = [];
+    state.equivalenceGuess = null;
+    state.pH = null;
+    document.getElementById("phDisplay").textContent = "—";
+    document.getElementById("dataRows").innerHTML = "";
+    document.getElementById("secTitration").classList.add("locked");
+    document.getElementById("secPostlab").classList.add("locked");
+    document.getElementById("chartHint").textContent =
+      "After you begin, click the chart at the volume you think is the equivalence point (vertical dashed line).";
+    setSetupInputsEnabled(true);
+    document.getElementById("CaInput").disabled = false;
+    document.getElementById("CaInput").value = "0.100";
+    document.getElementById("caHiddenNote").style.display = "none";
+    onScenarioChange();
+    updateBuretteUI();
+    updateFlaskColor(7);
+    refreshChart();
+  }
+
+  function beginTitration() {
+    state.scenario = document.getElementById("scenarioSel").value;
+    state.indicator = document.getElementById("indicatorSel").value;
+    state.Va = parseFloat(document.getElementById("VaInput").value);
+    state.Cb = parseFloat(document.getElementById("CbInput").value);
+
+    if (state.scenario === "unknown") {
+      state.hiddenCa = 0.0873;
+      state.Ca = state.hiddenCa;
+      document.getElementById("CaInput").value = "— hidden —";
+      document.getElementById("CaInput").disabled = true;
+      document.getElementById("caHiddenNote").style.display = "block";
+    } else {
+      state.hiddenCa = null;
+      state.Ca = parseFloat(document.getElementById("CaInput").value);
+      document.getElementById("CaInput").disabled = false;
+      document.getElementById("caHiddenNote").style.display = "none";
+    }
+
+    if (
+      !(state.Ca > 0 && state.Va > 0 && state.Cb > 0) ||
+      (state.scenario !== "unknown" && !isFinite(state.Ca))
+    ) {
+      alert("Enter positive concentrations and volume.");
+      return;
+    }
+
+    state.Vb = 0;
+    state.dataPoints = [];
+    state.equivalenceGuess = null;
+    state.trueEquivML = equivalenceVolumeML();
+    state.phase = "titrating";
+
+    setSetupInputsEnabled(false);
+
+    document.getElementById("secTitration").classList.remove("locked");
+    document.getElementById("secPostlab").classList.add("locked");
+    document.getElementById("equivGuess").value = "";
+
+    recalcAndPush();
+    document.getElementById("q3wrap").style.display = isWeakLike()
+      ? "block"
+      : "none";
+  }
+
+  function onScenarioChange() {
+    const v = document.getElementById("scenarioSel").value;
+    const blurb = document.getElementById("scenarioBlurb");
+    const caIn = document.getElementById("CaInput");
+    const note = document.getElementById("caHiddenNote");
+
+    if (v === "strong") {
+      blurb.textContent =
+        "Equivalence when moles base = moles acid: V_eq = Ca·Va / Cb. For 0.1 M / 25 mL each side, V_eq = 25.0 mL; pH_eq = 7.00.";
+    } else if (v === "weak") {
+      blurb.textContent =
+        "Same V_eq as strong/strong if monoprotic. Buffer before eq.; pH_eq > 7 (conjugate base). pKa ≈ 4.74 for acetic acid.";
+    } else {
+      blurb.textContent =
+        "The flask acid concentration is hidden (treat as unknown). Titrate and use V_eq to find Ca in the post-lab.";
+    }
+
+    if (state.phase !== "setup") return;
+
+    note.style.display = v === "unknown" ? "block" : "none";
+    if (v === "unknown") {
+      caIn.value = "";
+      caIn.placeholder = "Hidden";
+      caIn.disabled = true;
+    } else {
+      caIn.placeholder = "";
+      caIn.disabled = false;
+      caIn.value = "0.100";
+    }
+  }
+
+  document.getElementById("scenarioSel").addEventListener("change", onScenarioChange);
+  document.getElementById("btnBegin").addEventListener("click", beginTitration);
+  document.getElementById("btnReset").addEventListener("click", resetToSetup);
+  document.getElementById("add01").addEventListener("click", () => addVolume(0.1));
+  document.getElementById("add05").addEventListener("click", () => addVolume(0.5));
+  document.getElementById("add10").addEventListener("click", () => addVolume(1.0));
+
+  document.getElementById("btnSubmitEquiv").addEventListener("click", () => {
+    if (state.phase !== "titrating") return;
+    const g = parseFloat(document.getElementById("equivGuess").value);
+    if (!isFinite(g) || g < 0) {
+      alert("Enter a valid equivalence volume (mL), or click the chart to fill the field.");
+      return;
+    }
+    state.equivalenceGuess = Math.min(50, Math.max(0, g));
+    unlockPostlab();
+    refreshChart();
+  });
+
+  onScenarioChange();
+  initChart();
+})();
+  </script>
+</body>
+</html>
