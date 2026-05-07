@@ -10,18 +10,18 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     :root {
-      --cream: #fffbf3;
-      --wood: #c9a66b;
-      --wood-dark: #8b6b3e;
-      --wall: #e8f4fc;
-      --ink: #2c3e50;
-      --muted: #5a6b7a;
-      --accent: #e85d75;
-      --accent-dark: #c9455c;
+      --cream: #fff7db;
+      --wood: #d9a765;
+      --wood-dark: #8a5b26;
+      --wall: #bfe9ff;
+      --ink: #233046;
+      --muted: #4b5f75;
+      --accent: #ff6f91;
+      --accent-dark: #d64973;
       --ok: #3dad6a;
       --card: #ffffff;
-      --shadow: 0 8px 24px rgba(44, 62, 80, 0.12);
-      --radius: 16px;
+      --shadow: 0 12px 0 rgba(35, 48, 70, 0.22);
+      --radius: 18px;
     }
 
     *, *::before, *::after { box-sizing: border-box; }
@@ -32,7 +32,11 @@
       overflow: hidden;
       font-family: "Nunito", system-ui, sans-serif;
       color: var(--ink);
-      background: var(--wall);
+      background:
+        radial-gradient(circle at 8% 10%, rgba(255,255,255,0.45) 0 8%, transparent 9%),
+        radial-gradient(circle at 92% 22%, rgba(255,255,255,0.35) 0 6%, transparent 7%),
+        radial-gradient(circle at 20% 85%, rgba(255,255,255,0.35) 0 7%, transparent 8%),
+        linear-gradient(180deg, #c9f1ff 0%, var(--wall) 45%, #a8ddff 100%);
     }
 
     /* One screen — no page scroll */
@@ -104,7 +108,7 @@
       border-radius: var(--radius);
       background: var(--cream);
       box-shadow: var(--shadow);
-      border: 1px solid rgba(139, 107, 62, 0.2);
+      border: 3px solid #374866;
       overflow: hidden;
     }
 
@@ -155,26 +159,26 @@
     .lab-card {
       background: var(--card);
       border-radius: var(--radius);
-      border: 3px solid transparent;
+      border: 3px solid #a4c8df;
       padding: 12px 14px;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+      box-shadow: 0 6px 0 rgba(50, 73, 106, 0.2);
       transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
       min-height: 0;
     }
 
     .lab-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 22px rgba(0,0,0,0.08);
+      box-shadow: 0 8px 0 rgba(50, 73, 106, 0.2);
     }
 
     .lab-card.selected {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(232, 93, 117, 0.25);
+      box-shadow: 0 0 0 4px rgba(255, 111, 145, 0.3), 0 8px 0 rgba(50, 73, 106, 0.18);
     }
 
     .lab-card .big {
@@ -210,7 +214,7 @@
       font-weight: 800;
       font-size: clamp(0.85rem, 2.2vw, 1rem);
       padding: 12px 28px;
-      border: none;
+      border: 2px solid rgba(0,0,0,0.15);
       border-radius: 999px;
       background: linear-gradient(180deg, var(--accent), var(--accent-dark));
       color: #fff;
@@ -267,7 +271,7 @@
     .coach {
       flex: 0 0 auto;
       background: linear-gradient(135deg, #fff8e7, #fff);
-      border: 2px dashed rgba(201, 166, 107, 0.55);
+      border: 3px dashed rgba(201, 126, 68, 0.7);
       border-radius: 12px;
       padding: 8px 12px;
       font-size: clamp(0.75rem, 1.9vw, 0.88rem);
@@ -289,8 +293,8 @@
       flex: 1 1 0;
       min-height: 0;
       display: grid;
-      grid-template-columns: 1fr minmax(180px, 38%);
-      gap: 10px;
+      grid-template-columns: 1.35fr minmax(260px, 35%);
+      gap: 12px;
       align-items: stretch;
     }
 
@@ -307,12 +311,12 @@
       background:
         linear-gradient(180deg, rgba(255,255,255,0.35) 0%, transparent 40%),
         linear-gradient(90deg, #d4b483 0%, #c9a66b 35%, #b8925a 70%, #c9a66b 100%);
-      border: 2px solid var(--wood-dark);
+      border: 3px solid var(--wood-dark);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-end;
-      padding: 8px 10px 10px;
+      padding: 12px 12px 12px;
       position: relative;
       overflow: hidden;
     }
@@ -331,26 +335,43 @@
       display: flex;
       align-items: flex-end;
       justify-content: center;
-      gap: clamp(12px, 4vw, 28px);
+      gap: clamp(20px, 6vw, 54px);
       flex: 1 1 0;
       min-height: 0;
       width: 100%;
+      padding-bottom: 6px;
     }
+
+    .glass-label {
+      position: absolute;
+      top: 8px;
+      z-index: 2;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #2f415e;
+      background: rgba(255,255,255,0.9);
+      border: 2px solid #a9c6db;
+      border-radius: 999px;
+      padding: 3px 10px;
+      letter-spacing: 0.02em;
+    }
+
+    .glass-label.burette-lab { left: 16px; }
+    .glass-label.flask-lab { right: 16px; }
 
     .burette-wrap {
       display: flex;
       flex-direction: column;
       align-items: center;
       height: 100%;
-      max-height: 220px;
       justify-content: flex-end;
     }
 
     .burette {
-      width: 36px;
-      height: min(160px, 28vh);
-      border: 2px solid #5c4a38;
-      border-radius: 4px 4px 0 0;
+      width: clamp(48px, 7vw, 72px);
+      height: clamp(250px, 42vh, 420px);
+      border: 3px solid #5c4a38;
+      border-radius: 8px 8px 0 0;
       background: rgba(255,255,255,0.35);
       position: relative;
       overflow: hidden;
@@ -368,42 +389,42 @@
 
     .burette-marks {
       position: absolute;
-      right: -16px;
+      right: -24px;
       top: 0;
       bottom: 0;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      font-size: 7px;
+      font-size: 10px;
       font-weight: 800;
       color: #4a3b2a;
-      padding: 4px 0;
+      padding: 8px 0;
     }
 
     .burette-tip {
-      width: 7px;
-      height: 12px;
+      width: 12px;
+      height: 20px;
       background: #6b5a48;
-      border-radius: 0 0 3px 3px;
+      border-radius: 0 0 5px 5px;
     }
 
     .stopcock {
-      width: 18px;
-      height: 7px;
+      width: 28px;
+      height: 10px;
       background: #4a4035;
-      border-radius: 2px;
-      margin-top: 2px;
+      border-radius: 4px;
+      margin-top: 4px;
     }
 
     .droplet {
       position: absolute;
-      width: 9px;
-      height: 9px;
+      width: 13px;
+      height: 13px;
       border-radius: 50%;
       background: #3b9eff;
       left: 50%;
-      margin-left: -4px;
-      top: 18px;
+      margin-left: -6px;
+      top: 28px;
       opacity: 0;
       pointer-events: none;
       z-index: 4;
@@ -421,16 +442,15 @@
     .flask-area {
       position: relative;
       height: 100%;
-      max-height: 200px;
       display: flex;
       align-items: flex-end;
       justify-content: center;
     }
 
     .flask-svg {
-      width: min(88px, 22vw);
+      width: min(170px, 34vw);
       height: auto;
-      max-height: min(130px, 24vh);
+      max-height: min(245px, 42vh);
       filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
     }
 
@@ -448,9 +468,9 @@
     .readout {
       background: rgba(255,255,255,0.92);
       border-radius: 10px;
-      padding: 4px 10px;
+      padding: 6px 12px;
       font-weight: 800;
-      font-size: clamp(0.72rem, 1.8vw, 0.82rem);
+      font-size: clamp(0.8rem, 2vw, 0.95rem);
       border: 1px solid rgba(0,0,0,0.08);
     }
 
@@ -460,25 +480,104 @@
       font-size: 1.05em;
     }
 
+    .bench-facts {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .fact-tile {
+      background: rgba(255,255,255,0.93);
+      border: 2px solid #bfd7e8;
+      border-radius: 10px;
+      padding: 6px 8px;
+      min-width: 0;
+    }
+
+    .fact-k {
+      display: block;
+      font-size: 0.64rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .fact-v {
+      display: block;
+      margin-top: 2px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #243752;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .side-panel {
       min-height: 0;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
     }
 
     .chart-box {
       flex: 1 1 0;
-      min-height: 120px;
-      max-height: 42%;
+      min-height: 180px;
+      max-height: 50%;
       background: #fff;
       border-radius: 12px;
-      border: 2px solid rgba(0,0,0,0.06);
-      padding: 4px 6px;
+      border: 3px solid #87b4d1;
+      padding: 8px;
       position: relative;
     }
 
     .chart-box canvas { display: block; }
+
+    .analytics-box {
+      flex: 0 0 auto;
+      background: #ffffff;
+      border: 3px solid #b6d4e7;
+      border-radius: 12px;
+      padding: 8px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .metric {
+      border: 2px solid #d6e7f2;
+      border-radius: 10px;
+      padding: 6px 7px;
+      background: #f9fdff;
+      min-width: 0;
+    }
+
+    .metric .k {
+      display: block;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .metric .v {
+      display: block;
+      margin-top: 3px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #1e304a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .metric.full { grid-column: 1 / -1; }
 
     .controls {
       flex: 0 0 auto;
@@ -498,10 +597,10 @@
       min-width: 0;
       font: inherit;
       font-weight: 800;
-      font-size: 0.68rem;
-      padding: 6px 4px;
+      font-size: 0.8rem;
+      padding: 9px 6px;
       border-radius: 10px;
-      border: 2px solid #dde4ea;
+      border: 3px solid #d4e6f4;
       background: #fff;
       cursor: pointer;
       color: var(--ink);
@@ -509,7 +608,7 @@
 
     button.ind.on {
       border-color: var(--accent);
-      background: #fff5f6;
+      background: #ffe7ee;
     }
 
     .add-row {
@@ -521,10 +620,10 @@
       flex: 1;
       font: inherit;
       font-weight: 800;
-      font-size: clamp(0.75rem, 2vw, 0.88rem);
-      padding: 8px 4px;
+      font-size: clamp(0.86rem, 2.2vw, 1rem);
+      padding: 11px 6px;
       border-radius: 12px;
-      border: none;
+      border: 2px solid rgba(0,0,0,0.14);
       background: linear-gradient(180deg, #5ec9ff, #38a7e8);
       color: #fff;
       cursor: pointer;
@@ -551,16 +650,16 @@
       min-width: 0;
       font: inherit;
       font-weight: 700;
-      padding: 6px 8px;
+      padding: 9px 10px;
       border-radius: 10px;
-      border: 2px solid #dde4ea;
+      border: 3px solid #d4e6f4;
     }
 
     button.secondary {
       font: inherit;
       font-weight: 800;
-      font-size: 0.78rem;
-      padding: 8px 12px;
+      font-size: 0.86rem;
+      padding: 10px 14px;
       border-radius: 10px;
       border: none;
       background: #3dad6a;
@@ -595,10 +694,19 @@
       .post-grid { grid-template-columns: 1fr; }
     }
 
+    @media (max-width: 980px) {
+      .bench-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 820px) {
+      .analytics-box { grid-template-columns: 1fr; }
+      .bench-facts { grid-template-columns: 1fr; }
+    }
+
     .summary-card {
       background: #fff;
       border-radius: 12px;
-      border: 2px solid rgba(0,0,0,0.06);
+      border: 3px solid #c8e0ef;
       padding: 10px 12px;
       font-size: 0.78rem;
       font-weight: 700;
@@ -616,38 +724,117 @@
       padding-left: 1.1rem;
     }
 
-    .questions {
+    .quiz-panel {
       min-height: 0;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
+    }
+
+    .quiz-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .quiz-counter {
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .quiz-type {
+      font-size: 0.68rem;
+      font-weight: 800;
+      color: #2b4a6e;
+      background: #eaf6ff;
+      border: 2px solid #bcdaf0;
+      border-radius: 999px;
+      padding: 2px 8px;
+    }
+
+    .quiz-card {
+      flex: 1 1 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      border: 3px solid #c8e0ef;
+      border-radius: 12px;
+      padding: 10px;
       overflow: hidden;
     }
 
-    .q {
-      flex: 1 1 0;
-      min-height: 0;
+    .quiz-prompt {
+      margin: 0 0 8px;
+      font-size: 0.86rem;
+      font-weight: 800;
+      line-height: 1.35;
+      color: #21344e;
+    }
+
+    .quiz-options {
       display: flex;
       flex-direction: column;
+      gap: 7px;
+      overflow: auto;
     }
 
-    .q label {
-      font-size: 0.68rem;
-      font-weight: 800;
-      color: var(--muted);
-      margin-bottom: 2px;
+    .quiz-option {
+      text-align: left;
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 8px 10px;
+      border: 2px solid #c9deee;
+      border-radius: 10px;
+      background: #f8fcff;
+      color: #21344e;
+      cursor: pointer;
     }
 
-    .q textarea {
+    .quiz-option:hover { border-color: #86bbde; }
+    .quiz-option.selected { border-color: #2f7db2; background: #e8f5ff; }
+
+    .quiz-textarea {
       flex: 1 1 0;
-      min-height: 36px;
+      min-height: 120px;
       resize: none;
       font: inherit;
       font-weight: 600;
-      font-size: 0.75rem;
-      padding: 6px 8px;
-      border-radius: 8px;
-      border: 2px solid #dde4ea;
+      font-size: 0.8rem;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 3px solid #d4e6f4;
+    }
+
+    .quiz-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .quiz-note {
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .quiz-result {
+      border: 3px solid #9ed1b2;
+      background: #eefcf4;
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      line-height: 1.4;
+      color: #1e4a32;
     }
 
     .post-footer {
@@ -657,6 +844,153 @@
       align-items: center;
       gap: 8px;
       margin-top: 6px;
+    }
+
+    .tutorial-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 30;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(23, 32, 48, 0.6);
+      backdrop-filter: blur(2px);
+    }
+
+    .tutorial-overlay.active { display: flex; }
+
+    .tutorial-card {
+      position: relative;
+      z-index: 40;
+      width: min(580px, 100%);
+      background: linear-gradient(180deg, #fffef7, #fff7df);
+      border: 4px solid #334563;
+      border-radius: 20px;
+      box-shadow: 0 12px 0 rgba(33, 43, 63, 0.35);
+      padding: 14px 14px 10px;
+    }
+
+    .tutorial-title {
+      margin: 0 0 4px;
+      font-size: clamp(1rem, 3vw, 1.2rem);
+      font-weight: 800;
+    }
+
+    .tutorial-body {
+      margin: 0;
+      font-size: clamp(0.8rem, 2.4vw, 0.95rem);
+      font-weight: 700;
+      line-height: 1.45;
+      color: var(--ink);
+    }
+
+    .tutorial-progress {
+      margin-top: 8px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .tutorial-actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .focus-pop {
+      position: relative;
+      z-index: 32;
+      box-shadow: 0 0 0 5px rgba(255, 230, 113, 0.95), 0 0 0 10px rgba(255, 111, 145, 0.35);
+      border-radius: 12px;
+      transition: box-shadow 0.2s ease;
+    }
+
+    .intro-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,0.25), transparent 35%),
+        radial-gradient(circle at 80% 15%, rgba(255,255,255,0.22), transparent 30%),
+        linear-gradient(180deg, rgba(22, 46, 77, 0.92), rgba(23, 65, 104, 0.9));
+      backdrop-filter: blur(2px);
+      padding: 16px;
+    }
+
+    .intro-overlay.active { display: flex; }
+
+    .intro-card {
+      width: min(640px, 100%);
+      border-radius: 22px;
+      border: 4px solid #d8ecff;
+      background: linear-gradient(180deg, #f9fdff, #edf7ff);
+      box-shadow: 0 16px 0 rgba(19, 34, 56, 0.35);
+      padding: 18px 18px 14px;
+      animation: introRise 0.6s ease both;
+      text-align: center;
+    }
+
+    .intro-icon {
+      font-size: clamp(2.2rem, 8vw, 3.2rem);
+      line-height: 1;
+      margin-bottom: 6px;
+      animation: introFloat 2s ease-in-out infinite;
+    }
+
+    .intro-card h2 {
+      margin: 0;
+      font-size: clamp(1.15rem, 3.6vw, 1.5rem);
+      font-weight: 800;
+      color: #1f3553;
+    }
+
+    .intro-card p {
+      margin: 8px 0 12px;
+      font-size: clamp(0.82rem, 2.2vw, 0.95rem);
+      font-weight: 700;
+      color: #2f4b70;
+      line-height: 1.45;
+    }
+
+    .intro-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .intro-metric {
+      border: 2px solid #c3dff3;
+      border-radius: 10px;
+      background: #ffffff;
+      padding: 7px 6px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: #2b4669;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    @keyframes introRise {
+      from { opacity: 0; transform: translateY(10px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes introFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    @media (max-width: 720px) {
+      .intro-metrics { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -674,14 +1008,14 @@
       <!-- 1) Choose titration -->
       <section class="view active" id="viewPick" aria-label="Choose titration">
         <div class="pick-head">
-          <h1>Welcome to the bench!</h1>
-          <p>Pick a titration. We’ll walk you through it like a real lab — quick, clear, and a little fun.</p>
+          <h1>Select a titration protocol</h1>
+          <p>Choose a scenario to run and analyze. Each protocol includes guided steps and post-lab assessment.</p>
         </div>
         <div class="pick-grid">
           <button type="button" class="lab-card" data-scenario="strong" id="cardStrong">
             <div class="big" aria-hidden="true">⚗️</div>
             <h2>Strong + Strong</h2>
-            <p>HCl with NaOH — a classic “steep jump” at pH 7. Great first titration.</p>
+            <p>HCl with NaOH — a standard strong acid/strong base system with a steep transition near pH 7.</p>
           </button>
           <button type="button" class="lab-card" data-scenario="weak" id="cardWeak">
             <div class="big" aria-hidden="true">🍋</div>
@@ -712,6 +1046,8 @@
         <div class="coach" id="coachText"></div>
         <div class="lab-body">
           <div class="bench-panel">
+            <span class="glass-label burette-lab">Burette (NaOH)</span>
+            <span class="glass-label flask-lab">Erlenmeyer Flask (acid)</span>
             <div class="glassware">
               <div class="burette-wrap" style="position:relative;">
                 <div class="burette" id="burette">
@@ -745,9 +1081,41 @@
               <div class="readout">Added: <em id="dispensedLabel">0.0 mL</em></div>
               <div class="readout">pH: <em id="phDisplay">—</em></div>
             </div>
+            <div class="bench-facts">
+              <div class="fact-tile">
+                <span class="fact-k">Approx. Region</span>
+                <span class="fact-v" id="factRegion">Initial solution</span>
+              </div>
+              <div class="fact-tile">
+                <span class="fact-k">dpH/dV (local)</span>
+                <span class="fact-v" id="factSlope">—</span>
+              </div>
+            </div>
           </div>
           <div class="side-panel">
             <div class="chart-box"><canvas id="phChart"></canvas></div>
+            <div class="analytics-box">
+              <div class="metric">
+                <span class="k">Theoretical V_eq</span>
+                <span class="v" id="metricVeq">—</span>
+              </div>
+              <div class="metric">
+                <span class="k">Total Volume</span>
+                <span class="v" id="metricVtot">—</span>
+              </div>
+              <div class="metric">
+                <span class="k">n(HA) initial</span>
+                <span class="v" id="metricAcidMoles">—</span>
+              </div>
+              <div class="metric">
+                <span class="k">n(OH⁻) added</span>
+                <span class="v" id="metricBaseMoles">—</span>
+              </div>
+              <div class="metric full">
+                <span class="k">Stoichiometric Status</span>
+                <span class="v" id="metricStatus">Awaiting titrant addition</span>
+              </div>
+            </div>
             <div class="controls">
               <div class="ind-row" id="indicatorRow">
                 <button type="button" class="ind" data-ind="phenolphthalein">Pink zone (phenol.)</button>
@@ -764,10 +1132,10 @@
                 <button type="button" class="secondary" id="btnMarkEquiv">Mark equivalence</button>
               </div>
               <button type="button" class="ghost" id="btnEarlyEquiv" hidden style="font-size:0.72rem;padding:4px 10px;">
-                I’m at the steep part — let me mark V_eq now
+                Steep region reached — mark V_eq now
               </button>
               <div class="lab-nav">
-                <button type="button" class="primary" id="btnStartAdds" hidden>I’m set — start dripping!</button>
+                <button type="button" class="primary" id="btnStartAdds" hidden>Start titration</button>
                 <button type="button" class="primary" id="btnToPost" hidden>Post-lab →</button>
               </div>
             </div>
@@ -778,21 +1146,63 @@
       <!-- 3) Post-lab -->
       <section class="view" id="viewPost" aria-label="Post-lab">
         <div class="pick-head" style="margin-bottom:8px;">
-          <h1>Post-lab — you did the hard part 🎉</h1>
-          <p>Jot quick conclusions. There’s no auto-grading — it’s your thinking that counts.</p>
+          <h1>Post-lab assessment</h1>
+          <p>Complete the post-lab check: one question at a time, then finish with a short reflection.</p>
         </div>
         <div class="post-grid">
           <div class="summary-card">
             <h3>Your run snapshot</h3>
             <ul id="summaryList"></ul>
           </div>
-          <div class="questions" id="postQuestions"></div>
+          <div class="quiz-panel">
+            <div class="quiz-head">
+              <span class="quiz-counter" id="quizCounter">Question 1 of 6</span>
+              <span class="quiz-type" id="quizType">Multiple choice</span>
+            </div>
+            <div class="quiz-card" id="quizCard">
+              <p class="quiz-prompt" id="quizPrompt"></p>
+              <div class="quiz-options" id="quizOptions"></div>
+              <textarea class="quiz-textarea" id="quizTextAnswer" hidden placeholder="Use data from your run to justify your answer."></textarea>
+            </div>
+            <div class="quiz-actions">
+              <span class="quiz-note" id="quizNote">Select one answer to continue.</span>
+              <div style="display:flex; gap:8px;">
+                <button type="button" class="ghost" id="btnQuizPrev">Back</button>
+                <button type="button" class="primary" id="btnQuizNext">Next →</button>
+              </div>
+            </div>
+            <div class="quiz-result" id="quizResult" hidden></div>
+          </div>
         </div>
         <div class="post-footer">
           <button type="button" class="ghost" id="btnAgain">← Another titration</button>
-          <span class="pill">Stay curious!</span>
         </div>
       </section>
+      <div class="tutorial-overlay" id="tutorialOverlay" aria-live="polite" aria-modal="true" role="dialog">
+        <div class="tutorial-card">
+          <h2 class="tutorial-title" id="tutorialTitle">Lab orientation</h2>
+          <p class="tutorial-body" id="tutorialBody"></p>
+          <div class="tutorial-progress" id="tutorialProgress"></div>
+          <div class="tutorial-actions">
+            <button type="button" class="ghost" id="tutorialSkip">Skip tutorial</button>
+            <button type="button" class="ghost" id="tutorialBack" hidden>Back</button>
+            <button type="button" class="primary" id="tutorialNext">Next</button>
+          </div>
+        </div>
+      </div>
+      <div class="intro-overlay active" id="introOverlay" aria-live="polite" aria-modal="true" role="dialog">
+        <div class="intro-card">
+          <div class="intro-icon" aria-hidden="true">🧪</div>
+          <h2>Titration Lab Simulator</h2>
+          <p>Run quantitative acid-base titrations, capture pH-volume data, and evaluate endpoint behavior with post-lab checks.</p>
+          <div class="intro-metrics">
+            <div class="intro-metric">Curve Analysis</div>
+            <div class="intro-metric">Stoichiometry</div>
+            <div class="intro-metric">Post-Lab Quiz</div>
+          </div>
+          <button type="button" class="primary" id="btnStartSim">Open Lab Selection</button>
+        </div>
+      </div>
     </main>
   </div>
 
@@ -834,7 +1244,31 @@
     /** 0 pick indicator & start, 1 titrating, 2 mark equiv, 3 done */
     labSub: 0,
     indicatorPicked: false,
+    tutorialStep: 0,
+    tutorialOpen: false,
+    postQuiz: [],
+    postQuizIndex: 0,
+    postQuizAnswers: [],
   };
+
+  const TUTORIAL_FLAG = "titrationLabTutorialSeenV1";
+  const tutorialSteps = [
+    {
+      title: "Pick your indicator first",
+      body: "On the right side, select one indicator. This enables the titration controls.",
+      target: "#indicatorRow",
+    },
+    {
+      title: "Build the titration curve",
+      body: "Use +1.0 mL while the line is flat, then switch to +0.1 mL near the steep jump to find equivalence.",
+      target: ".add-row",
+    },
+    {
+      title: "Mark equivalence and finish",
+      body: "Click the steepest part of the graph, hit Mark equivalence, then open Post-lab to review your run.",
+      target: ".chart-box",
+    },
+  ];
 
   function log10(x) { return Math.log(x) / Math.LN10; }
 
@@ -1074,8 +1508,56 @@
     document.getElementById("phDisplay").textContent = state.pH.toFixed(2);
     updateFlaskColor(state.pH);
     updateBuretteUI();
+    updateAnalytics();
     refreshChart();
     updateCoach();
+  }
+
+  function formatMol(x) {
+    if (!isFinite(x)) return "—";
+    return x.toExponential(3).replace("e", " x10^") + " mol";
+  }
+
+  function computeSlope() {
+    if (state.dataPoints.length < 2) return null;
+    const p1 = state.dataPoints[state.dataPoints.length - 1];
+    const p0 = state.dataPoints[state.dataPoints.length - 2];
+    const dv = p1.x - p0.x;
+    if (Math.abs(dv) < 1e-9) return null;
+    return (p1.y - p0.y) / dv;
+  }
+
+  function classifyRegion(Veq) {
+    if (state.Vb <= 0.05) return "Initial solution";
+    if (state.Vb < Veq * 0.45) return "Pre-equivalence";
+    if (Math.abs(state.Vb - Veq / 2) <= 0.35 && isWeakLike()) return "Half-equivalence neighborhood";
+    if (Math.abs(state.Vb - Veq) <= 0.45) return "Equivalence neighborhood";
+    if (state.Vb > Veq) return "Post-equivalence excess OH⁻";
+    return "Approaching equivalence";
+  }
+
+  function updateAnalytics() {
+    const Veq = equivalenceVolumeML();
+    const nAcid = state.Ca * (state.Va / 1000);
+    const nBase = state.Cb * (state.Vb / 1000);
+    const Vtot = state.Va + state.Vb;
+    const slope = computeSlope();
+    const region = classifyRegion(Veq);
+    const limiting =
+      nBase < nAcid - 1e-8
+        ? "Acid in excess"
+        : nBase > nAcid + 1e-8
+          ? "Base in excess"
+          : "Near stoichiometric balance";
+
+    document.getElementById("factRegion").textContent = region;
+    document.getElementById("factSlope").textContent = slope == null ? "—" : slope.toFixed(2) + " pH/mL";
+
+    document.getElementById("metricVeq").textContent = Veq.toFixed(2) + " mL";
+    document.getElementById("metricVtot").textContent = Vtot.toFixed(2) + " mL";
+    document.getElementById("metricAcidMoles").textContent = formatMol(nAcid);
+    document.getElementById("metricBaseMoles").textContent = formatMol(nBase);
+    document.getElementById("metricStatus").textContent = limiting;
   }
 
   function addVolume(dV) {
@@ -1118,22 +1600,22 @@
     const Veq = equivalenceVolumeML();
     if (state.labSub === 0) {
       el.innerHTML =
-        "<strong>Step 1 — Make it yours.</strong> Tap an indicator (each has a fun color change). " +
-        "<small>Then hit the big pink button to open the stopcock and start the run.</small>";
+        "<strong>Step 1 — Select indicator.</strong> Choose the indicator for endpoint visibility. " +
+        "<small>Then start titration to begin collecting pH-volume data.</small>";
       return;
     }
     if (state.labSub === 1) {
       let hint =
-        "<strong>Step 2 — Add base, watch the story unfold.</strong> Bigger squirts when you’re bored; " +
-        "baby drips (0.1 mL) when the line starts sprinting upward.";
+        "<strong>Step 2 — Add base and monitor response.</strong> Use larger increments early, " +
+        "then switch to smaller additions (0.1 mL) near the steep region.";
       if (state.Vb < 1.5) {
-        hint += " <small>Add a little volume so your curve isn’t lonely.</small>";
+        hint += " <small>Collect initial points to establish baseline trend.</small>";
       } else if (state.Vb < Veq - 5) {
-        hint += " <small>You’re in the chill zone of the curve — explore freely.</small>";
+        hint += " <small>Current region: pre-equivalence.</small>";
       } else if (state.Vb < Veq - 1) {
-        hint += " <small>Getting spicy — this is where patient drips win the day.</small>";
+        hint += " <small>Approaching steep slope: prioritize finer increments.</small>";
       } else {
-        hint += " <small>When the controls below unlock, you’re cleared to call the equivalence point.</small>";
+        hint += " <small>Use graph slope behavior to estimate equivalence.</small>";
       }
       el.innerHTML = hint;
       return;
@@ -1146,8 +1628,55 @@
       return;
     }
     el.innerHTML =
-      "<strong>Step 4 — Lab bench = clear.</strong> Peek at your curve and colors one last time, then head to the post-lab to explain what happened. " +
-      "<small>Science is the snack; explaining it is the whole meal.</small>";
+      "<strong>Step 4 — Finalize run.</strong> Review the curve and recorded values, then continue to post-lab assessment. " +
+      "<small>Document your interpretation using data-supported reasoning.</small>";
+  }
+
+  function tutorialSeen() {
+    try {
+      return localStorage.getItem(TUTORIAL_FLAG) === "1";
+    } catch (_e) {
+      return false;
+    }
+  }
+
+  function markTutorialSeen() {
+    try {
+      localStorage.setItem(TUTORIAL_FLAG, "1");
+    } catch (_e) {}
+  }
+
+  function clearTutorialFocus() {
+    document.querySelectorAll(".focus-pop").forEach((el) => el.classList.remove("focus-pop"));
+  }
+
+  function renderTutorialStep() {
+    const i = Math.max(0, Math.min(tutorialSteps.length - 1, state.tutorialStep));
+    const step = tutorialSteps[i];
+    document.getElementById("tutorialTitle").textContent = step.title;
+    document.getElementById("tutorialBody").textContent = step.body;
+    document.getElementById("tutorialProgress").textContent = "Step " + (i + 1) + " of " + tutorialSteps.length;
+    document.getElementById("tutorialBack").hidden = i === 0;
+    document.getElementById("tutorialNext").textContent = i === tutorialSteps.length - 1 ? "Begin" : "Next";
+    clearTutorialFocus();
+    if (step.target) {
+      const target = document.querySelector(step.target);
+      if (target) target.classList.add("focus-pop");
+    }
+  }
+
+  function closeTutorial() {
+    state.tutorialOpen = false;
+    document.getElementById("tutorialOverlay").classList.remove("active");
+    clearTutorialFocus();
+    markTutorialSeen();
+  }
+
+  function openTutorial(startAt) {
+    state.tutorialStep = Math.max(0, Math.min(tutorialSteps.length - 1, startAt || 0));
+    state.tutorialOpen = true;
+    document.getElementById("tutorialOverlay").classList.add("active");
+    renderTutorialStep();
   }
 
   function setAddsEnabled(on) {
@@ -1205,45 +1734,132 @@
     requestAnimationFrame(() => {
       recalcAndPush();
       if (state.chart) state.chart.resize();
+      if (!tutorialSeen()) openTutorial(0);
     });
   }
 
-  function buildPostQuestions() {
-    const wrap = document.getElementById("postQuestions");
-    wrap.innerHTML = "";
-    const qs = [
+  function postQuizQuestions() {
+    const weak = isWeakLike();
+    return [
       {
-        id: "pq1",
-        t: "Equivalence volume + why that part of the curve is the “money” region.",
+        type: "mcq",
+        prompt: "Which section of a titration curve usually has the largest slope magnitude (|dpH/dV|)?",
+        options: [
+          "Early pre-equivalence region",
+          "Near equivalence point",
+          "Far post-equivalence plateau",
+          "The slope is constant everywhere",
+        ],
+        correct: 1,
       },
       {
-        id: "pq2",
-        t: "How you’d get acid concentration from V_eq (words or a tiny calculation sketch).",
+        type: "mcq",
+        prompt: weak
+          ? "For a weak acid titrated by a strong base, pH at equivalence is usually:"
+          : "For a strong acid titrated by a strong base, pH at equivalence is usually:",
+        options: weak
+          ? ["Below 7", "Approximately 7", "Above 7", "Cannot be estimated"]
+          : ["Below 7", "Approximately 7", "Above 7", "Always above 10"],
+        correct: weak ? 2 : 1,
+      },
+      {
+        type: "mcq",
+        prompt: "Why switch to smaller additions (e.g., 0.1 mL) near the steep region?",
+        options: [
+          "To reduce random pH noise from the sensor",
+          "To avoid changing stoichiometry",
+          "To resolve the endpoint location more precisely",
+          "Because large additions are chemically invalid",
+        ],
+        correct: 2,
+      },
+      {
+        type: "mcq",
+        prompt: "At equivalence, which stoichiometric condition is most accurate for a monoprotic acid-base titration?",
+        options: [
+          "n(HA) initial = 2 * n(OH−) added",
+          "n(HA) initial = n(OH−) added",
+          "n(HA) remaining = n(OH−) added",
+          "n(H+) = 10 * n(OH−)",
+        ],
+        correct: 1,
+      },
+      {
+        type: "mcq",
+        prompt: weak
+          ? "At half-equivalence for weak acid + strong base titration:"
+          : "Before equivalence in strong acid + strong base titration, the dominant excess species is usually:",
+        options: weak
+          ? ["pH = pKa (approximately)", "pH = 7 exactly", "pOH = pKa", "No relation exists"]
+          : ["OH−", "A− only", "H+", "Neither H+ nor OH−"],
+        correct: weak ? 0 : 2,
+      },
+      {
+        type: "open",
+        prompt:
+          "Final reflection: In 3-5 sentences, explain how your curve shape and data support your estimated equivalence point and indicator choice.",
       },
     ];
-    if (isWeakLike()) {
-      qs.push({
-        id: "pq3",
-        t: "Half-equivalence: where on the volume axis, and what pH should hug for this weak acid family?",
-      });
+  }
+
+  function renderQuizQuestion() {
+    const q = state.postQuiz[state.postQuizIndex];
+    const answers = state.postQuizAnswers[state.postQuizIndex];
+    const isOpen = q.type === "open";
+    document.getElementById("quizCounter").textContent =
+      "Question " + (state.postQuizIndex + 1) + " of " + state.postQuiz.length;
+    document.getElementById("quizType").textContent = isOpen ? "Open response" : "Multiple choice";
+    document.getElementById("quizPrompt").textContent = q.prompt;
+    document.getElementById("quizNote").textContent = isOpen
+      ? "Use your own run data in your explanation."
+      : "Select one answer to continue.";
+    document.getElementById("btnQuizPrev").disabled = state.postQuizIndex === 0;
+    document.getElementById("btnQuizNext").textContent =
+      state.postQuizIndex === state.postQuiz.length - 1 ? "Finish quiz" : "Next →";
+
+    const optionsWrap = document.getElementById("quizOptions");
+    const textEl = document.getElementById("quizTextAnswer");
+    optionsWrap.innerHTML = "";
+    optionsWrap.hidden = isOpen;
+    textEl.hidden = !isOpen;
+
+    if (isOpen) {
+      textEl.value = typeof answers === "string" ? answers : "";
+      return;
     }
-    qs.push({
-      id: "pq4",
-      t: "pH at equivalence vs 7, indicator pick, and one fun sentence on how a strong-acid curve would look different.",
+
+    q.options.forEach((opt, i) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "quiz-option" + (answers === i ? " selected" : "");
+      b.textContent = opt;
+      b.addEventListener("click", () => {
+        state.postQuizAnswers[state.postQuizIndex] = i;
+        renderQuizQuestion();
+      });
+      optionsWrap.appendChild(b);
     });
-    qs.forEach((q) => {
-      const div = document.createElement("div");
-      div.className = "q";
-      div.innerHTML =
-        "<label for=\"" +
-        q.id +
-        "\">" +
-        q.t +
-        "</label><textarea id=\"" +
-        q.id +
-        "\"></textarea>";
-      wrap.appendChild(div);
+  }
+
+  function finalizeQuiz() {
+    let score = 0;
+    let mcqCount = 0;
+    state.postQuiz.forEach((q, i) => {
+      if (q.type !== "mcq") return;
+      mcqCount += 1;
+      if (state.postQuizAnswers[i] === q.correct) score += 1;
     });
+    const reflection = state.postQuizAnswers[state.postQuiz.length - 1] || "";
+    document.getElementById("quizResult").hidden = false;
+    document.getElementById("quizResult").textContent =
+      "Quiz complete. Score: " +
+      score +
+      "/" +
+      mcqCount +
+      ". Reflection captured" +
+      (reflection.trim() ? " (" + reflection.trim().length + " chars)." : ".");
+    document.getElementById("quizCard").hidden = true;
+    document.querySelector(".quiz-actions").hidden = true;
   }
 
   function openPostLab() {
@@ -1274,7 +1890,13 @@
     if (state.scenario === "unknown") {
       li("Mystery run: check your derived [HA] with your instructor’s key — the sim won’t spoil it here.");
     }
-    buildPostQuestions();
+    state.postQuiz = postQuizQuestions();
+    state.postQuizIndex = 0;
+    state.postQuizAnswers = new Array(state.postQuiz.length).fill(null);
+    document.getElementById("quizCard").hidden = false;
+    document.querySelector(".quiz-actions").hidden = false;
+    document.getElementById("quizResult").hidden = true;
+    renderQuizQuestion();
     refreshChart();
     showView("post");
   }
@@ -1290,6 +1912,7 @@
     document.getElementById("dispensedLabel").textContent = "0.0 mL";
     document.getElementById("buretteFill").style.height = "100%";
     updateFlaskColor(7);
+    updateAnalytics();
     refreshChart();
     showView("pick");
   }
@@ -1316,6 +1939,9 @@
   });
 
   document.getElementById("btnAgain").addEventListener("click", () => resetAllToPick());
+  document.getElementById("btnStartSim").addEventListener("click", () => {
+    document.getElementById("introOverlay").classList.remove("active");
+  });
 
   /* ——— Lab: indicator + start ——— */
   document.querySelectorAll(".ind").forEach((btn) => {
@@ -1364,8 +1990,63 @@
     openPostLab();
   });
 
+  document.getElementById("btnQuizPrev").addEventListener("click", () => {
+    if (state.postQuizIndex <= 0) return;
+    const q = state.postQuiz[state.postQuizIndex];
+    if (q && q.type === "open") {
+      state.postQuizAnswers[state.postQuizIndex] = document.getElementById("quizTextAnswer").value.trim();
+    }
+    state.postQuizIndex -= 1;
+    renderQuizQuestion();
+  });
+
+  document.getElementById("btnQuizNext").addEventListener("click", () => {
+    const q = state.postQuiz[state.postQuizIndex];
+    if (!q) return;
+    if (q.type === "open") {
+      const txt = document.getElementById("quizTextAnswer").value.trim();
+      if (!txt) {
+        alert("Please add a short reflection before finishing.");
+        return;
+      }
+      state.postQuizAnswers[state.postQuizIndex] = txt;
+    } else if (state.postQuizAnswers[state.postQuizIndex] == null) {
+      alert("Please select an answer before moving on.");
+      return;
+    }
+
+    if (state.postQuizIndex >= state.postQuiz.length - 1) {
+      finalizeQuiz();
+      return;
+    }
+    state.postQuizIndex += 1;
+    renderQuizQuestion();
+  });
+
+  document.getElementById("tutorialNext").addEventListener("click", () => {
+    if (!state.tutorialOpen) return;
+    if (state.tutorialStep >= tutorialSteps.length - 1) {
+      closeTutorial();
+      return;
+    }
+    state.tutorialStep += 1;
+    renderTutorialStep();
+  });
+
+  document.getElementById("tutorialBack").addEventListener("click", () => {
+    if (!state.tutorialOpen || state.tutorialStep <= 0) return;
+    state.tutorialStep -= 1;
+    renderTutorialStep();
+  });
+
+  document.getElementById("tutorialSkip").addEventListener("click", () => {
+    if (!state.tutorialOpen) return;
+    closeTutorial();
+  });
+
   initChart();
   updateFlaskColor(7);
+  updateAnalytics();
   updateCoach();
 })();
   </script>
