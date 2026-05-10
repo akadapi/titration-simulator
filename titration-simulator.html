@@ -402,6 +402,20 @@ header.topbar::before{
 }
 .liquid-surface{transform-origin:50% 70%;animation:gentleSwirl 3s ease-in-out infinite;}
 @keyframes gentleSwirl{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(1px) rotate(0.6deg);}}
+.mix-bloom{
+  opacity:0;
+  transform-origin:50px 78px;
+  pointer-events:none;
+}
+.mix-bloom.mix{
+  animation:mixBloom 1.6s ease-out forwards;
+}
+@keyframes mixBloom{
+  0%{opacity:0;transform:translateY(-8px) scale(0.35);}
+  16%{opacity:0.82;transform:translateY(0) scale(0.82);}
+  58%{opacity:0.42;transform:translateY(6px) scale(1.18);}
+  100%{opacity:0;transform:translateY(11px) scale(1.55);}
+}
 
 /* readout strip */
 .readout-strip{
@@ -854,6 +868,11 @@ header.topbar::before{
                   <g clip-path="url(#flaskClip)" class="liquid-surface">
                     <rect x="10" y="58" width="80" height="72" fill="url(#liqG)"/>
                     <ellipse cx="50" cy="58" rx="38" ry="5" fill="rgba(255,255,255,0.36)"/>
+                    <g class="mix-bloom" id="mixBloom">
+                      <ellipse cx="50" cy="73" rx="24" ry="10" fill="#d72477" fill-opacity="0.62"/>
+                      <ellipse cx="39" cy="84" rx="12" ry="6" fill="#d72477" fill-opacity="0.32"/>
+                      <ellipse cx="61" cy="88" rx="15" ry="7" fill="#d72477" fill-opacity="0.24"/>
+                    </g>
                   </g>
                 </svg>
               </div>
@@ -1151,6 +1170,24 @@ function updateFlask(ph){
   document.getElementById("liqA").setAttribute("stop-color",`rgb(${r},${g},${b})`);
   document.getElementById("liqB").setAttribute("stop-color",`rgb(${r2},${g2},${b2})`);
 }
+function triggerMixBloom(ph,oldPh){
+  const bloom=qs("#mixBloom");
+  if(!bloom||S.labSub<1||oldPh==null)return;
+  const ind=INDICATORS[S.indicator];
+  const Veq=trueVeq(),remaining=Veq-T().Vb;
+  const nearIndicator=ph>=ind.low-1.4&&ph<=ind.high+0.6;
+  const nearEquiv=remaining<4&&remaining>-1;
+  const noticeableShift=Math.abs(ph-oldPh)>0.12;
+  if(!nearIndicator&&!nearEquiv&&!noticeableShift)return;
+  const flash=ph<ind.high?ind.cHigh:indicatorColor(ph);
+  bloom.querySelectorAll("ellipse").forEach((el,i)=>{
+    el.setAttribute("fill",`rgb(${flash[0]},${flash[1]},${flash[2]})`);
+    el.setAttribute("fill-opacity",i===0?"0.62":i===1?"0.34":"0.25");
+  });
+  bloom.classList.remove("mix");
+  void bloom.getBoundingClientRect();
+  bloom.classList.add("mix");
+}
 
 // ── CHARTS ────────────────────────────────────────────────────
 function buildPhChart(){
@@ -1325,21 +1362,21 @@ function updateApproachCue(){
   if(!cue||!S.scenario)return;
   const Vb=T().Vb,Veq=trueVeq();
   const remaining=Veq-Vb;
-  let level="Steady",hint="Use 1.0 mL additions.",tone="steady";
+  let level="Steady",hint="The solution is changing slowly.",tone="steady";
   if(S.labSub<1){
     level="Ready";
     hint="Choose an indicator, then begin.";
   } else if(remaining<=0.25&&remaining>=-0.25){
-    level="Dropwise";
-    hint="Use 0.1 mL additions.";
+    level="Almost there";
+    hint="Watch each drop carefully.";
     tone="dropwise";
   } else if(remaining<=1.2&&remaining>-0.25){
     level="Very close";
-    hint="Switch to 0.1 mL.";
+    hint="The color may linger longer.";
     tone="close";
   } else if(remaining<=4&&remaining>1.2){
     level="Getting close";
-    hint="Switch to 0.5 mL soon.";
+    hint="Look for brief color flashes.";
     tone="near";
   } else if(remaining<0){
     level="Past transition";
@@ -1357,10 +1394,12 @@ function recalcPush(){
   const ph=computePH(Vb);
   const pts=T().pts;
   const last=pts[pts.length-1];
+  const oldPh=last?.y;
   if(!last||Math.abs(last.x-Vb)>1e-6)pts.push({x:Vb,y:ph});
   else last.y=ph;
   qs("#phDisplay").textContent=ph.toFixed(2);
   updateFlask(ph);
+  triggerMixBloom(ph,oldPh);
   updateBurette();
   updateApproachCue();
   updateAnalytics();
