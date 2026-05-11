@@ -926,6 +926,7 @@ header.topbar::before{
               <button class="btn-add" id="add10" disabled>+1.0 mL</button>
               <button class="btn-add" id="add05" disabled>+0.5 mL</button>
               <button class="btn-add" id="add01" disabled>+0.1 mL</button>
+              <button class="btn-add" id="addDrop" disabled title="Fine drop (0.02 mL)">💧 Drop</button>
             </div>
             <div class="equiv-row" id="equivBlock" hidden>
               <input type="number" id="equivInput" step="0.01" min="0" max="60" placeholder="Click curve or type mL"/>
@@ -1023,6 +1024,7 @@ const SCENARIOS=[
   {id:"ws",label:"Weak Acid + Strong Base",icon:"HA",sub:"CH₃COOH + NaOH",desc:"A weak acid system where the curve develops a buffer region before the main transition.",badge:"Weak/Strong",analyte:"CH₃COOH",titrant:"NaOH",type:"ws",eqPH:8.9},
   {id:"sw",label:"Strong Acid + Weak Base",icon:"NH₃",sub:"HCl + NH₃",desc:"A system that shows how a weak titrant changes the curve and endpoint behavior.",badge:"Strong/Weak",analyte:"HCl",titrant:"NH₃",type:"sw",eqPH:5.1},
   {id:"ww",label:"Weak Acid + Weak Base",icon:"Kₐ",sub:"CH₃COOH + NH₃",desc:"A gentler curve for comparing weak acid and weak base behavior qualitatively.",badge:"Weak/Weak",analyte:"CH₃COOH",titrant:"NH₃",type:"ww",eqPH:7.0},
+  {id:"poly",label:"Polyprotic Acid",icon:"H₂CO₃",sub:"H₂CO₃ + NaOH",desc:"A diprotic system (Carbonic Acid) with two distinct equivalence points and buffer regions.",badge:"Diprotic/Strong",analyte:"H₂CO₃",titrant:"NaOH",type:"poly",eqPH:8.3},
 ];
 const INDICATORS={
   phenolphthalein:{low:8.2,high:10,cLow:[252,250,248],cHigh:[219,39,119],name:"Phenolphthalein"},
@@ -1706,7 +1708,7 @@ function startLab(){
 }
 
 function setAdds(on){
-  ["#add01","#add05","#add10"].forEach(id=>qs(id).disabled=!on);
+  ["#add01","#add05","#add10","#addDrop"].forEach(id=>qs(id).disabled=!on);
 }
 function prepareTrial2(firstGuess){
   S.activeTrial=1;
@@ -1791,6 +1793,7 @@ qs("#btnEarlyEquiv").addEventListener("click",advanceToEquiv);
 qs("#add10").addEventListener("click",()=>addVol(1.0));
 qs("#add05").addEventListener("click",()=>addVol(0.5));
 qs("#add01").addEventListener("click",()=>addVol(0.1));
+qs("#addDrop").addEventListener("click",()=>addVol(0.02));
 
 qs("#btnMarkEquiv").addEventListener("click",()=>{
   const g=parseFloat(qs("#equivInput").value);
