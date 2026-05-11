@@ -805,7 +805,14 @@ header.topbar::before{
         </div>
       </div>
       <div class="pick-footer">
-        <div class="fixed-titrant">Titrant concentration fixed at 0.100 M</div>
+        <div class="cb-row">
+          <span class="param-label">Titrant Concentration:</span>
+          <select class="param-select" id="selectCb">
+            <option value="0.05">0.0500 M</option>
+            <option value="0.10" selected>0.1000 M</option>
+            <option value="0.20">0.2000 M</option>
+          </select>
+        </div>
         <button class="btn-primary" id="btnEnterLab" disabled>Enter Lab →</button>
       </div>
     </section>
@@ -1673,8 +1680,15 @@ function tutSeen(){try{return localStorage.getItem(TUT_KEY)==="1";}catch(e){retu
 
 // ── LAB SETUP ─────────────────────────────────────────────────
 function startLab(){
-  S.Cb=0.1;
-  S.Ca=0.1;S.Va=25;
+  // Get selected titrant concentration
+  const cbVal = parseFloat(qs("#selectCb").value) || 0.1;
+  S.Cb = cbVal;
+
+  // Randomize Analyte Concentration (Ca) between 0.07 M and 0.13 M
+  // This ensures the equivalence point varies between ~17 mL and ~33 mL (at 0.1M titrant)
+  S.Ca = 0.07 + Math.random() * 0.06;
+  
+  S.Va = 25;
   S.trials=[{Vb:0,pts:[],equivGuess:null,done:false},{Vb:0,pts:[],equivGuess:null,done:false}];
   S.activeTrial=0;S.labSub=0;S.indicatorPicked=false;
   S.phase="titrating";
