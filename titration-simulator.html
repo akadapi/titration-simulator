@@ -175,7 +175,20 @@ header.topbar::before{
   box-shadow:var(--shadow-sharp);
 }
 
-.pick-footer{flex-shrink:0;display:flex;justify-content:center;align-items:center;gap:14px;padding-top:10px;}
+.pick-footer{flex-shrink:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px;padding-top:10px;}
+.molarity-info{
+  background:rgba(47,143,131,0.05);
+  border:1px solid rgba(47,143,131,0.2);
+  border-radius:var(--r-md);
+  padding:10px 14px;
+  width:100%;max-width:500px;
+  font-size:0.72rem;line-height:1.4;color:var(--text-muted);
+}
+.molarity-info strong{display:block;margin-bottom:4px;color:var(--accent);text-transform:uppercase;letter-spacing:0.05em;font-size:0.65rem;}
+.molarity-info ul{list-style:none;}
+.molarity-info li{position:relative;padding-left:12px;margin-bottom:2px;}
+.molarity-info li::before{content:"•";position:absolute;left:0;color:var(--accent);}
+.molarity-info li span{font-family:var(--font-mono);font-weight:700;color:var(--text);}
 .fixed-titrant{
   font-family:var(--font-mono);font-size:0.68rem;font-weight:600;
   color:var(--text-muted);background:#fff;border:1px solid var(--border);
@@ -430,6 +443,41 @@ header.topbar::before{
 }
 .readout em{font-style:normal;color:var(--accent);}
 .readout.advanced-readout{display:none;}
+
+/* ─── VOLTMETER ─── */
+.voltmeter{
+  display:none;position:absolute;bottom:50px;right:18px;
+  width:110px;height:140px;
+  background:linear-gradient(135deg, #3d4a5d, #2d3748);
+  border:2px solid #1a202c;
+  border-radius:var(--r-md);padding:10px;
+  box-shadow: 
+    0 4px 0 #1a202c,
+    0 10px 20px rgba(0,0,0,0.3);
+  z-index:10;flex-direction:column;align-items:center;gap:8px;
+}
+.voltmeter.active{display:flex;}
+.volt-screen{
+  width:100%;background:#0a0f16;border-radius:var(--r-sm);
+  padding:6px 8px;text-align:right;border:2px solid #4a5568;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+}
+.volt-val{font-family:var(--font-mono);font-size:1.1rem;font-weight:700;color:#63b3ed;text-shadow:0 0 10px rgba(99,179,237,0.6);}
+.volt-unit{font-size:0.6rem;font-weight:800;color:#a0aec0;margin-left:2px;}
+.volt-dial{
+  width:40px;height:40px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, #4a5568, #2d3748);
+  border:2px solid #1a202c;position:relative;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+.volt-dial::after{
+  content:"";position:absolute;top:5px;left:50%;width:3px;height:15px;
+  background:#cbd5e0;transform:translateX(-50%);border-radius:2px;
+}
+.volt-ports{display:flex;gap:12px;margin-top:auto;}
+.volt-port{width:12px;height:12px;border-radius:50%;background:#1a202c;border:2px solid #718096;}
+.volt-port.red{background:#c53030;border-color:#9b2c2c;}
+.volt-label{font-size:0.55rem;font-weight:800;color:#cbd5e0;text-transform:uppercase;letter-spacing:0.1em;margin-top:2px;}
 
 .bench-data-grid{
   display:none;grid-template-columns:repeat(3,1fr);gap:6px;
@@ -687,6 +735,27 @@ header.topbar::before{
 .quiz-result.pass{border-left:3px solid var(--ok);color:#15803d;}
 .quiz-result.fail{border-left:3px solid var(--accent);color:var(--accent);}
 
+/* ─── REPORT CARD ─── */
+.report-card{
+  background:var(--bg);border-radius:var(--r-lg);
+  box-shadow:var(--shadow-recessed);
+  padding:16px;display:flex;flex-direction:column;gap:12px;
+  animation:introRise 0.5s ease-out both;
+}
+.report-header{text-align:center;border-bottom:1px solid var(--border);padding-bottom:12px;}
+.report-header h2{font-size:1.1rem;font-weight:800;letter-spacing:-0.02em;}
+.report-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.report-stat{
+  background:#fff;border:1px solid var(--border);
+  border-radius:var(--r-md);padding:10px;text-align:center;
+}
+.report-stat .rk{display:block;font-size:0.6rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;}
+.report-stat .rv{display:block;font-size:1rem;font-weight:800;color:var(--text);}
+.report-stat.grade-box{grid-column:1/-1;background:var(--accent);color:#fff;border:none;}
+.report-stat.grade-box .rk{color:rgba(255,255,255,0.8);}
+.report-stat.grade-box .rv{font-size:2.2rem;line-height:1;}
+.report-feedback{font-size:0.75rem;font-weight:500;line-height:1.4;color:var(--text-muted);background:rgba(255,255,255,0.5);padding:10px;border-radius:var(--r-md);}
+
 .post-footer{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;gap:8px;padding-top:4px;}
 
 /* ─── INTRO OVERLAY ─── */
@@ -805,7 +874,15 @@ header.topbar::before{
         </div>
       </div>
       <div class="pick-footer">
-        <div class="cb-row">
+        <div class="molarity-info" id="molarityInfo">
+          <strong>Choosing a Molarity:</strong>
+          <ul>
+            <li><span>0.05 M</span>: High precision, but requires more volume. Best for dilute unknowns.</li>
+            <li><span>0.10 M</span>: Standard balance of precision and volume.</li>
+            <li><span>0.20 M</span>: Fast neutralization, but easy to overshoot the endpoint.</li>
+          </ul>
+        </div>
+        <div class="cb-row" style="width:100%; justify-content:center;">
           <span class="param-label">Titrant Concentration:</span>
           <select class="param-select" id="selectCb">
             <option value="0.05">0.0500 M</option>
@@ -837,6 +914,18 @@ header.topbar::before{
       <div class="lab-body">
         <!-- BENCH -->
         <div class="bench">
+          <div class="voltmeter" id="voltmeter">
+            <div class="volt-screen">
+              <span class="volt-val" id="voltVal">0.000</span>
+              <span class="volt-unit">V</span>
+            </div>
+            <div class="volt-dial"></div>
+            <div class="volt-label">Potentiometer</div>
+            <div class="volt-ports">
+              <div class="volt-port"></div>
+              <div class="volt-port red"></div>
+            </div>
+          </div>
           <div class="bench-labels">
             <span class="bench-label">Burette</span>
             <span class="bench-label">Erlenmeyer</span>
@@ -887,7 +976,7 @@ header.topbar::before{
           </div>
           <div class="readout-strip">
             <div class="readout">V added: <em id="dispLabel">0.00 mL</em></div>
-            <div class="readout">pH: <em id="phDisplay">—</em></div>
+            <div class="readout"><span id="phLabel">pH:</span> <em id="phDisplay">—</em></div>
             <div class="readout advanced-readout">ΔpH/ΔV: <em id="slopeDisplay">—</em></div>
           </div>
           <div class="bench-data-grid">
@@ -928,6 +1017,7 @@ header.topbar::before{
               <button class="btn-ind" data-ind="methylorange">Methyl Orange</button>
               <button class="btn-ind" data-ind="bromothymol">Bromothymol Blue</button>
               <button class="btn-ind" data-ind="methylred">Methyl Red</button>
+              <button class="btn-ind" data-ind="starch" style="display:none;">Starch Indicator</button>
             </div>
             <div class="add-row">
               <button class="btn-add" id="add10" disabled>+1.0 mL</button>
@@ -1005,16 +1095,15 @@ header.topbar::before{
     <div class="intro-overlay active" id="introOverlay" role="dialog" aria-modal="true">
       <div class="intro-card">
         <div class="intro-icon">⚗️</div>
-        <h2>Titration Lab Simulator</h2>
-        <p>AP Chemistry · Run quantitative acid-base titrations, capture real-time pH–volume data, and complete post-lab calculations with stoichiometric analysis.</p>
-        <div class="intro-chips">
-          <span class="intro-chip">4 Scenarios</span>
-          <span class="intro-chip">Dual Trials</span>
-          <span class="intro-chip">pH + Derivative</span>
-          <span class="intro-chip">CSV Export</span>
-          <span class="intro-chip">Post-Lab Quiz</span>
-        </div>
-        <button class="btn-primary" id="btnOpen">Open Lab Selection</button>
+        <h2>Quick Start Guide</h2>
+        <p style="text-align:left; margin-bottom:18px;">
+          1. <strong>Select a Protocol</strong>: Choose an Acid-Base or Redox lab.<br/>
+          2. <strong>Set Molarity</strong>: Check the Molarity Guide before entering.<br/>
+          3. <strong>Choose Indicator</strong>: Select the correct color indicator (or Starch for Redox).<br/>
+          4. <strong>Titrate</strong>: Add titrant (+1.0mL) initially, then slow to 💧Drop (0.02mL) near the endpoint.<br/>
+          5. <strong>Analyze</strong>: Mark your equivalence point and complete the Post-Lab report.
+        </p>
+        <button class="btn-primary" id="btnOpen">Enter Lab Selection</button>
       </div>
     </div>
 
@@ -1031,13 +1120,15 @@ const SCENARIOS=[
   {id:"ws",label:"Weak Acid + Strong Base",icon:"HA",sub:"CH₃COOH + NaOH",desc:"A weak acid system where the curve develops a buffer region before the main transition.",badge:"Weak/Strong",analyte:"CH₃COOH",titrant:"NaOH",type:"ws",eqPH:8.9},
   {id:"sw",label:"Strong Acid + Weak Base",icon:"NH₃",sub:"HCl + NH₃",desc:"A system that shows how a weak titrant changes the curve and endpoint behavior.",badge:"Strong/Weak",analyte:"HCl",titrant:"NH₃",type:"sw",eqPH:5.1},
   {id:"ww",label:"Weak Acid + Weak Base",icon:"Kₐ",sub:"CH₃COOH + NH₃",desc:"A gentler curve for comparing weak acid and weak base behavior qualitatively.",badge:"Weak/Weak",analyte:"CH₃COOH",titrant:"NH₃",type:"ww",eqPH:7.0},
-  {id:"poly",label:"Polyprotic Acid",icon:"H₂CO₃",sub:"H₂CO₃ + NaOH",desc:"A diprotic system (Carbonic Acid) with two distinct equivalence points and buffer regions.",badge:"Diprotic/Strong",analyte:"H₂CO₃",titrant:"NaOH",type:"poly",eqPH:8.3},
+  {id:"vitc",label:"Redox: Vitamin C Analysis",icon:"VitC",sub:"C₆H₈O₆ + I₂",desc:"Titrate Vitamin C with Iodine using Starch indicator. Measures Potential (E).",badge:"Redox",analyte:"C₆H₈O₆",titrant:"I₂",type:"redox",eqPH:0.54},
+  {id:"std",label:"Redox: Iodine Standardization",icon:"S₂O₃",sub:"S₂O₃²⁻ + I₂",desc:"Standardize Iodine solution with Sodium Thiosulfate to find exact [I₂].",badge:"Redox",analyte:"S₂O₃²⁻",titrant:"I₂",type:"redox-std",eqPH:0.54},
 ];
 const INDICATORS={
   phenolphthalein:{low:8.2,high:10,cLow:[252,250,248],cHigh:[219,39,119],name:"Phenolphthalein"},
   methylorange:{low:3.1,high:4.4,cLow:[220,38,38],cHigh:[234,179,8],name:"Methyl Orange"},
   bromothymol:{low:6.0,high:7.6,cLow:[250,204,21],cHigh:[37,99,235],name:"Bromothymol Blue"},
   methylred:{low:4.4,high:6.2,cLow:[220,38,38],cHigh:[234,179,8],name:"Methyl Red"},
+  starch:{low:0.5,high:0.6,cLow:[250,250,250],cHigh:[25,40,90],name:"Starch Indicator"},
 };
 const KA_ACETIC=1.8e-5,PKA_ACETIC=-Math.log10(1.8e-5);
 const KA_CARBONIC1=4.3e-7,KA_CARBONIC2=4.7e-11;
@@ -1143,6 +1234,32 @@ function phPoly(Vb){
     return h+na-oh-hco3-2*co3;
   });
 }
+function phRedox(Vb){
+  const {Ca, Va, Cb} = S;
+  const type = S.scenario.type;
+  // Stoichiometry: 1:1 for VitC, 2:1 for Thio (2 mol Thio per 1 mol I2)
+  const nAn = type === "redox-std" ? 2 : 1;
+  const Veq = (Ca * Va) / (nAn * Cb);
+  
+  const E0_Cathode = 0.536; // I2/I-
+  const E0_Anode = type === "redox-std" ? 0.08 : 0.12; // Thio or VitC
+  const slope = 0.0592;
+
+  if (Vb < 0.001) return E0_Anode; 
+  if (Math.abs(Vb - Veq) < 0.001) return (E0_Anode + 2 * E0_Cathode) / 3;
+
+  if (Vb < Veq) {
+    // Before equivalence
+    const nOx = nAn * Cb * Vb;
+    const nRed = Ca * Va - nOx;
+    return E0_Anode + (slope / 2) * Math.log10(Math.max(1e-10, nOx / nRed));
+  } else {
+    // After equivalence
+    const nI2 = Cb * Vb - (Ca * Va / nAn);
+    const nIm = (Ca * Va / nAn) * 2;
+    return E0_Cathode + (slope / 2) * Math.log10(Math.max(1e-10, nI2 / (nIm * nIm)));
+  }
+}
 function computePH(Vb){
   switch(S.scenario.type){
     case"ss":return phSS(Vb);
@@ -1150,11 +1267,15 @@ function computePH(Vb){
     case"sw":return phSW(Vb);
     case"ww":return phWW(Vb);
     case"poly":return phPoly(Vb);
+    case"redox":
+    case"redox-std":return phRedox(Vb);
   }
   return 7;
 }
 function trueVeq(){
-  if(S.scenario.type==="poly")return S.Ca*S.Va/S.Cb; // first eq
+  if(S.scenario.type==="poly")return S.Ca*S.Va/S.Cb; 
+  if(S.scenario.type==="redox")return (S.Ca*S.Va)/S.Cb; // 1:1
+  if(S.scenario.type==="redox-std")return (S.Ca*S.Va)/(2*S.Cb); // 2 Thio : 1 I2
   return S.Ca*S.Va/S.Cb;
 }
 function trueVeq2(){return 2*S.Ca*S.Va/S.Cb;}
@@ -1173,8 +1294,33 @@ function indicatorState(ph){
   if(ph>ind.high)return "above transition";
   return "transition range";
 }
-function updateFlask(ph){
-  const[r,g,b]=indicatorColor(ph);
+function updateFlask(val){
+  const isRedox = S.scenario.type.startsWith("redox");
+  if (isRedox) {
+    // Redox color logic: Clear -> Dark Blue (Starch-Iodine)
+    const Veq = trueVeq();
+    const Vb = T().Vb;
+    let r=250, g=250, b=250; // Clear
+    if (Vb > Veq) {
+      const excess = Vb - Veq;
+      // Starch-Iodine Blue is very dark: [25, 40, 90]
+      const t = Math.min(1, excess / 0.5); // Fully blue after 0.5mL excess
+      r = Math.round(250 + (25 - 250) * t);
+      g = Math.round(250 + (40 - 250) * t);
+      b = Math.round(250 + (90 - 250) * t);
+    } else if (Vb > Veq - 0.1) {
+      // Very faint blue just at equivalence
+      const t = Math.min(1, (Vb - (Veq - 0.1)) / 0.1);
+      r = Math.round(250 + (180 - 250) * t);
+      g = Math.round(250 + (190 - 250) * t);
+      b = Math.round(250 + (220 - 250) * t);
+    }
+    const r2=Math.max(0,r-20),g2=Math.max(0,g-18),b2=Math.min(255,b+12);
+    document.getElementById("liqA").setAttribute("stop-color",`rgb(${r},${g},${b})`);
+    document.getElementById("liqB").setAttribute("stop-color",`rgb(${r2},${g2},${b2})`);
+    return;
+  }
+  const[r,g,b]=indicatorColor(val);
   const r2=Math.max(0,r-20),g2=Math.max(0,g-18),b2=Math.min(255,b+12);
   document.getElementById("liqA").setAttribute("stop-color",`rgb(${r},${g},${b})`);
   document.getElementById("liqB").setAttribute("stop-color",`rgb(${r2},${g2},${b2})`);
@@ -1218,19 +1364,19 @@ function buildPhChart(){
         legend:{display:true,labels:{font:{size:9,family:"JetBrains Mono"},color:"#4a5568",boxWidth:12}},
         tooltip:{callbacks:{label(c){
           const l=c.dataset.label||"";
-          if(l==="pH 7")return "Neutral (pH 7)";
+          if(l==="pH 7") return S.scenario.type === "redox" ? "Neutral Potential" : "Neutral (pH 7)";
           if(l.startsWith("Half"))return "Half-equiv ≈ pKₐ";
           if(l.startsWith("Vₑq"))return `Your Vₑq = ${c.parsed.x.toFixed(2)} mL`;
-          if(l.startsWith("Trial"))return `V=${c.parsed.x.toFixed(2)} mL  pH=${c.parsed.y.toFixed(2)}`;
+          if(l.startsWith("Trial"))return `V=${c.parsed.x.toFixed(2)} mL  ${S.scenario.type === 'redox' ? 'E' : 'pH'}=${c.parsed.y.toFixed(2)}`;
           return c.formattedValue;
         }}},
       },
       scales:{
-        x:{type:"linear",min:0,max:MAX_VB,
+        x:{type:"linear",min:0,
           ticks:{maxTicksLimit:7,font:{size:8,family:"JetBrains Mono"},color:"#4a5568"},
           grid:{color:"rgba(0,0,0,0.06)"},
           title:{display:true,text:"Volume NaOH added (mL)",font:{size:9,family:"JetBrains Mono"},color:"#4a5568"}},
-        y:{min:0,max:14,
+        y:{
           ticks:{font:{size:8,family:"JetBrains Mono"},color:"#4a5568"},
           grid:{color:"rgba(0,0,0,0.06)"},
           title:{display:true,text:"pH",font:{size:9,family:"JetBrains Mono"},color:"#4a5568"}},
@@ -1245,7 +1391,7 @@ function buildDerivChart(){
     data:{datasets:[]},
     options:{
       responsive:true,maintainAspectRatio:false,animation:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label(c){return `V=${c.parsed.x.toFixed(2)} mL  ΔpH/ΔV=${c.parsed.y.toFixed(3)}`;},}}},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label(c){return `V=${c.parsed.x.toFixed(2)} mL  Δ${S.scenario.type==='redox'?'E':'pH'}/ΔV=${c.parsed.y.toFixed(3)}`;},}}},
       scales:{
         x:{type:"linear",min:0,max:MAX_VB,offset:false,
           ticks:{maxTicksLimit:7,font:{size:8,family:"JetBrains Mono"},color:"#4a5568"},
@@ -1259,10 +1405,33 @@ function buildDerivChart(){
 function refreshCharts(){
   const colors=["#2f8f83","#b88746"];
   const phDS=[];
+  const tr = T();
   S.charts.ph.options.scales.x.title.text=`Volume ${S.scenario?.titrant||"titrant"} added (mL)`;
-  // pH 7 guide
-  phDS.push({label:"pH 7",data:[{x:0,y:7},{x:MAX_VB,y:7}],borderColor:"rgba(74,85,104,0.4)",
-    borderDash:[5,4],pointRadius:0,fill:false,tension:0,borderWidth:1.5,order:10});
+  
+  // Dynamic X-axis: Scale to current volume + padding, min 25mL
+  const currentMaxV = Math.max(25, tr.Vb + 5);
+  S.charts.ph.options.scales.x.max = currentMaxV;
+  S.charts.deriv.options.scales.x.max = currentMaxV;
+
+  // Dynamic Y-axis and labels for Redox
+  if (S.scenario.type.startsWith("redox")) {
+    S.charts.ph.options.scales.y.title.text = "Potential (E) / V";
+    // For Redox, we let it scale automatically to the data
+    delete S.charts.ph.options.scales.y.min;
+    delete S.charts.ph.options.scales.y.max;
+    S.charts.deriv.options.scales.y.title.text = "ΔE/ΔV";
+  } else {
+    S.charts.ph.options.scales.y.title.text = "pH";
+    S.charts.ph.options.scales.y.min = 0;
+    S.charts.ph.options.scales.y.max = 14;
+    S.charts.deriv.options.scales.y.title.text = "ΔpH/ΔV";
+  }
+
+  // pH 7 guide (only for acid-base)
+  if (!S.scenario.type.startsWith("redox")) {
+    phDS.push({label:"pH 7",data:[{x:0,y:7},{x:currentMaxV,y:7}],borderColor:"rgba(74,85,104,0.4)",
+      borderDash:[5,4],pointRadius:0,fill:false,tension:0,borderWidth:1.5,order:10});
+  }
   // Both trials
   S.trials.forEach((tr,i)=>{
     if(tr.pts.length<2)return;
@@ -1301,7 +1470,6 @@ function refreshCharts(){
   S.charts.ph.update("none");
 
   // Derivative chart (first derivative of active trial)
-  const tr=T();
   const derivData=[];
   for(let i=1;i<tr.pts.length;i++){
     const dv=tr.pts[i].x-tr.pts[i-1].x;
@@ -1407,6 +1575,11 @@ function recalcPush(){
   if(!last||Math.abs(last.x-Vb)>1e-6)pts.push({x:Vb,y:ph});
   else last.y=ph;
   qs("#phDisplay").textContent=ph.toFixed(2);
+  
+  if (S.scenario.type.startsWith("redox")) {
+    qs("#voltVal").textContent = ph.toFixed(3);
+  }
+
   updateFlask(ph);
   triggerMixBloom(ph,oldPh);
   updateBurette();
@@ -1473,6 +1646,7 @@ function updateCoach(){
 // ── SCENARIO CARDS ────────────────────────────────────────────
 function buildScenarioCards(){
   const grid=qs("#scenarioGrid");
+  if(!grid)return;
   grid.innerHTML="";
   SCENARIOS.forEach(sc=>{
     const btn=document.createElement("button");
@@ -1617,15 +1791,85 @@ function renderQuiz(){
   }
 }
 function finalizeQuiz(){
-  let score=0,mcq=0;
-  S.quiz.forEach((q,i)=>{if(q.type==="mcq"){mcq++;if(S.quizAns[i]===q.ans)score++;}});
-  const pct=Math.round(score/mcq*100);
-  const res=qs("#quizResult");
-  res.hidden=false;
-  res.className="quiz-result "+(pct>=70?"pass":"fail");
-  res.textContent=`Quiz complete — ${score}/${mcq} correct (${pct}%). Reflection captured.`;
-  qs("#quizCard").hidden=true;
-  qs(".quiz-actions").hidden=true;
+  // Pillars of the Grade
+  let conceptualScore = 0, mcqTotal = 0;
+  S.quiz.forEach((q, i) => {
+    if (q.type === "mcq") {
+      mcqTotal++;
+      if (S.quizAns[i] === q.ans) conceptualScore++;
+    }
+  });
+  const conceptualPct = (conceptualScore / mcqTotal) * 100;
+
+  // Accuracy Pillar (Trial 2 usually being the precise one)
+  const tr = S.trials[1].done ? S.trials[1] : S.trials[0];
+  const vEq = trueVeq();
+  const errMl = Math.abs(tr.equivGuess - vEq);
+  const errPct = (errMl / vEq) * 100;
+  let accuracyScore = 0;
+  if (errPct < 0.5) accuracyScore = 100;
+  else if (errPct < 1.0) accuracyScore = 90;
+  else if (errPct < 2.5) accuracyScore = 80;
+  else if (errPct < 5.0) accuracyScore = 60;
+  else accuracyScore = 40;
+
+  // Technique Pillar
+  let techniqueScore = 0;
+  // Check if they captured enough points near equivalence (within 0.2 mL)
+  const ptsNear = tr.pts.filter(p => Math.abs(p.x - vEq) < 0.2).length;
+  if (ptsNear >= 3) techniqueScore += 50; // Used Drop button or fine additions
+  else if (ptsNear >= 1) techniqueScore += 25;
+  
+  // Check if they continued at least 5mL past equivalence
+  if (tr.Vb > vEq + 5) techniqueScore += 50;
+  else if (tr.Vb > vEq + 2) techniqueScore += 25;
+
+  const finalScore = (conceptualPct * 0.4) + (accuracyScore * 0.4) + (techniqueScore * 0.2);
+  
+  let letter = "F";
+  if (finalScore >= 93) letter = "A";
+  else if (finalScore >= 85) letter = "B";
+  else if (finalScore >= 75) letter = "C";
+  else if (finalScore >= 65) letter = "D";
+
+  const feedback = accuracyScore < 80 ? "Your accuracy was low. Focus on adding titrant dropwise (💧 Drop) as the pH begins to shift." : 
+                   techniqueScore < 100 ? "Good accuracy, but collect more data points past the equivalence point to confirm the plateau." : 
+                   "Excellent lab technique and conceptual understanding!";
+
+  const quizPanel = qs(".quiz-panel");
+  quizPanel.innerHTML = `
+    <div class="report-card">
+      <div class="report-header">
+        <h2>Laboratory Performance Report</h2>
+      </div>
+      <div class="report-grid">
+        <div class="report-stat grade-box">
+          <span class="rk">Overall Performance</span>
+          <span class="rv">${letter}</span>
+        </div>
+        <div class="report-stat">
+          <span class="rk">Accuracy</span>
+          <span class="rv">${accuracyScore}%</span>
+        </div>
+        <div class="report-stat">
+          <span class="rk">Conceptual</span>
+          <span class="rv">${Math.round(conceptualPct)}%</span>
+        </div>
+        <div class="report-stat">
+          <span class="rk">Technique</span>
+          <span class="rv">${techniqueScore}%</span>
+        </div>
+        <div class="report-stat">
+          <span class="rk">Titration Error</span>
+          <span class="rv">${errPct.toFixed(2)}%</span>
+        </div>
+      </div>
+      <div class="report-feedback">
+        <strong>Instructor Feedback:</strong><br/>
+        ${feedback}
+      </div>
+    </div>
+  `;
 }
 
 // ── CSV EXPORT ────────────────────────────────────────────────
@@ -1650,24 +1894,47 @@ function exportCSV(){
 }
 
 // ── TUTORIAL ─────────────────────────────────────────────────
-const TUTS=[
-  {title:"Select your indicator",body:"Choose an indicator whose transition range overlaps with the expected equivalence pH. This enables the titration controls below.",target:"#indRow"},
-  {title:"Build the titration curve",body:"Add titrant in large steps (1.0 mL) while the curve is flat. Switch to 0.1 mL increments as the slope steepens near equivalence. Watch the Derivative tab for the maximum ΔpH/ΔV peak.",target:".add-row"},
-  {title:"Mark equivalence point",body:"Click on the steepest region of the graph — the volume is auto-filled. Confirm or adjust, then click Mark Vₑq. The derivative chart shows a peak at the true equivalence.",target:".chart-panel"},
-  {title:"Two-trial protocol",body:"Run a rough Trial 1 to locate equivalence approximately (±0.5 mL), then Trial 2 with finer additions for precision. If trials differ by >0.30 mL, repeat.",target:"#trialBadges"},
-];
+function getTuts(){
+  const isRedox = S.scenario?.type?.startsWith("redox");
+  const common = [
+    {title:"The Burette & Titrant",body:"The burette contains your titrant (the solution of known concentration). You will add this to the flask below to react with your unknown analyte.",target:".burette-asm"},
+    {title:"The Erlenmeyer & Analyte",body:"The flask contains your analyte. In this simulator, the concentration of this analyte is randomized for every session to ensure a unique challenge.",target:".flask-wrap"},
+    {title:"Instrumentation & Readouts",body:"This strip provides real-time digital data. Watch 'V added' for your burette volume and 'pH' (or 'Potential') for the reaction status.",target:".readout-strip"},
+  ];
+
+  if (isRedox) {
+    return [
+      ...common,
+      {title:"Digital Potentiometer",body:"This hardware measures the electrochemical potential (E) in Volts. In Redox titrations, we look for a sharp jump in Voltage instead of pH.",target:"#voltmeter"},
+      {title:"Starch Indicator",body:"Click the Starch button to add it to your flask. It stays clear as long as Vitamin C is present, then turns dark blue when you have excess Iodine.",target:"#indRow"},
+      {title:"Live Data Visualization",body:"The charts plot your data as you titrate. The 'Derivative' tab is critical—it shows a peak at the exact moment of the endpoint.",target:".chart-panel"},
+      {title:"Addition Controls",body:"Use +1.0mL while the curve is flat. As you approach the endpoint, use +0.1mL or the 💧 Drop (0.02mL) button for maximum precision.",target:".add-row"},
+      {title:"Analytics & Stoichiometry",body:"This box shows the 'Theoretical' equivalence point. Your goal is to find it experimentally by marking the curve.",target:"#analyticsBox"},
+    ];
+  }
+  return [
+    ...common,
+    {title:"Color Indicators",body:"Choose an indicator that changes color at the pH where your acid and base are neutralized. This enables the titration controls.",target:"#indRow"},
+    {title:"The Pace Cue",body:"This sensor helps you! It will change from 'Steady' to 'Near' or 'Dropwise' as it detects the chemical environment approaching the endpoint.",target:"#approachCue"},
+    {title:"Live Data Visualization",body:"The charts plot your data as you titrate. The 'Derivative' tab is critical—it shows a peak at the exact moment of the endpoint.",target:".chart-panel"},
+    {title:"Addition Controls",body:"Use +1.0mL while the curve is flat. As you approach the endpoint, use +0.1mL or the 💧 Drop (0.02mL) button for maximum precision.",target:".add-row"},
+    {title:"Analytics & Stoichiometry",body:"This box shows the 'Theoretical' equivalence point. Your goal is to find it experimentally by marking the curve.",target:"#analyticsBox"},
+  ];
+}
+
 function openTut(i=0){
   S.tutStep=i;S.tutOpen=true;
   qs("#tutOverlay").classList.add("active");
   renderTut();
 }
 function renderTut(){
-  const s=TUTS[Math.max(0,Math.min(TUTS.length-1,S.tutStep))];
+  const tuts = getTuts();
+  const s=tuts[Math.max(0,Math.min(tuts.length-1,S.tutStep))];
   qs("#tutTitle").textContent=s.title;
   qs("#tutBody").textContent=s.body;
-  qs("#tutProg").textContent=`Step ${S.tutStep+1} of ${TUTS.length}`;
+  qs("#tutProg").textContent=`Step ${S.tutStep+1} of ${tuts.length}`;
   qs("#tutBack").hidden=S.tutStep===0;
-  qs("#tutNext").textContent=S.tutStep===TUTS.length-1?"Begin":"Next";
+  qs("#tutNext").textContent=S.tutStep===tuts.length-1?"Begin":"Next";
   document.querySelectorAll(".focus-ring").forEach(e=>e.classList.remove("focus-ring"));
   if(s.target){const t=document.querySelector(s.target);if(t)t.classList.add("focus-ring");}
 }
@@ -1707,6 +1974,33 @@ function startLab(){
   qs("#btnTutorial").hidden=false;
   updateSteps();updateTrialBadges();updateCoach();
   showView("lab");
+
+  // Update Readout label for Redox
+  const phLabel = qs("#phLabel");
+  const voltmeter = qs("#voltmeter");
+  if (S.scenario.type.startsWith("redox")) {
+    phLabel.textContent = "Potential (E):";
+    voltmeter.classList.add("active");
+    qs("#indRow").style.display = "block"; // Changed to block for full-width
+    // Show only starch for redox
+    document.querySelectorAll(".btn-ind").forEach(btn => {
+      if (btn.dataset.ind === "starch") {
+        btn.style.display = "block";
+        btn.style.width = "100%";
+      } else {
+        btn.style.display = "none";
+      }
+    });
+  } else {
+    phLabel.textContent = "pH:";
+    voltmeter.classList.remove("active");
+    qs("#indRow").style.display = "grid";
+    document.querySelectorAll(".btn-ind").forEach(btn => {
+      btn.style.width = "";
+      btn.style.display = btn.dataset.ind === "starch" ? "none" : "block";
+    });
+  }
+
   updateFlask(7);
   qs("#buretteFill").style.height="100%";
   qs("#dispLabel").textContent="0.00 mL";
@@ -1717,7 +2011,8 @@ function startLab(){
     if(S.charts.ph)S.charts.ph.resize();
     if(S.charts.deriv)S.charts.deriv.resize();
     recalcPush();
-    if(!tutSeen())openTut(0);
+    // Always open tutorial when entering a new lab for full understanding
+    openTut(0);
   });
 }
 
@@ -1751,6 +2046,8 @@ function prepareTrial2(firstGuess){
 
 // ── VIEW SWITCHER ──────────────────────────────────────────────
 function showView(v){
+  const el = qs(`#view${cap(v)}`);
+  if(!el)return;
   ["pick","lab","post"].forEach(n=>qs(`#view${cap(n)}`).classList.toggle("active",n===v));
   if(v==="lab"){requestAnimationFrame(()=>{S.charts.ph?.resize();S.charts.deriv?.resize();});}
   if(v==="post"){refreshCharts();}
@@ -1918,7 +2215,8 @@ qs("#btnExportPost").addEventListener("click",exportCSV);
 
 // Tutorial
 qs("#tutNext").addEventListener("click",()=>{
-  if(S.tutStep>=TUTS.length-1){closeTut();return;}
+  const tuts = getTuts();
+  if(S.tutStep>=tuts.length-1){closeTut();return;}
   S.tutStep++;renderTut();
 });
 qs("#tutBack").addEventListener("click",()=>{if(S.tutStep>0){S.tutStep--;renderTut();}});
